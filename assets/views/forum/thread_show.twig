@@ -19,7 +19,14 @@
                     {% else %}
                         <a href="{{ route('profile.show', { user: thread.user_id }) }}" class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold text-white" style="background-color: {{ thread.author_name|avatar_color }}">{{ thread.author_name|slice(0, 1)|upper }}</a>
                     {% endif %}
-                    <span>{{ trans('forum.thread.by') }} <a href="{{ route('profile.show', { user: thread.user_id }) }}" class="font-semibold hover:text-emerald-600 dark:hover:text-emerald-400">{{ thread.author_name }}</a> · {{ thread.created_at }}</span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <svg class="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 1 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <span>{{ trans('forum.thread.by') }} <a href="{{ route('profile.show', { user: thread.user_id }) }}" class="font-semibold hover:text-emerald-600 dark:hover:text-emerald-400">{{ thread.author_name }}</a></span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <svg class="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                        <span>{{ thread.created_at }}</span>
+                    </span>
                     {% if thread.author_primary_badge is defined and thread.author_primary_badge %}
                         <span class="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] font-semibold text-sky-800 dark:bg-sky-900/35 dark:text-sky-300">{{ trans('badges.' ~ thread.author_primary_badge) }}</span>
                     {% elseif thread.author_role == 'moderator' %}
@@ -31,19 +38,22 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <form method="post" action="{{ route('forum.moderation.lock', { category: category.slug, thread: thread.slug }) }}">
                         <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
-                        <button type="submit" class="rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                        <button type="submit" class="inline-flex items-center gap-1.5 rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                             {{ thread.is_locked ? trans('forum.moderation.unlock') : trans('forum.moderation.lock') }}
                         </button>
                     </form>
                     <form method="post" action="{{ route('forum.moderation.pin', { category: category.slug, thread: thread.slug }) }}">
                         <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
-                        <button type="submit" class="rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                        <button type="submit" class="inline-flex items-center gap-1.5 rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v18"></path><path d="M8 4h10l-2.5 4 2.5 4H8"></path></svg>
                             {{ thread.is_pinned ? trans('forum.moderation.unsticky') : trans('forum.moderation.sticky') }}
                         </button>
                     </form>
                     <form method="post" action="{{ route('forum.moderation.delete_thread', { category: category.slug, thread: thread.slug }) }}">
                         <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
-                        <button type="submit" class="rounded border border-rose-300 px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-900/20">
+                        <button type="submit" class="inline-flex items-center gap-1.5 rounded border border-rose-300 px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-900/20">
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6M14 11v6"></path></svg>
                             {{ trans('forum.moderation.delete_thread') }}
                         </button>
                     </form>
@@ -54,7 +64,10 @@
         {% if tags is not empty %}
             <div class="mt-4 flex flex-wrap gap-2">
                 {% for tag in tags %}
-                    <span class="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">#{{ tag.name }}</span>
+                    <span class="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"></path></svg>
+                        <span>{{ tag.name }}</span>
+                    </span>
                 {% endfor %}
             </div>
         {% endif %}
@@ -62,7 +75,10 @@
             <form method="post" action="{{ route('forum.flag.thread', { category: category.slug, thread: thread.slug }) }}" class="mt-4 flex items-center gap-2">
                 <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
                 <input type="hidden" name="reason" value="thread">
-                <button type="submit" class="rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-amber-500 hover:text-amber-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-amber-500 dark:hover:text-amber-300">{{ trans('forum.flags.flag_thread') }}</button>
+                <button type="submit" class="inline-flex items-center gap-1.5 rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-amber-500 hover:text-amber-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-amber-500 dark:hover:text-amber-300">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v18"></path><path d="M8 4h11l-2.5 4 2.5 4H8"></path></svg>
+                    {{ trans('forum.flags.flag_thread') }}
+                </button>
             </form>
         {% endif %}
     </header>
@@ -75,11 +91,15 @@
     {% endif %}
 
     <section id="comments" class="mt-6 space-y-3">
-        <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">{{ trans('forum.reply.heading') }} ({{ pagination.total }})</h2>
+        <h2 class="inline-flex items-center gap-2 text-lg font-semibold text-zinc-900 dark:text-white">
+            <svg class="h-5 w-5 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>{{ trans('forum.reply.heading') }} ({{ pagination.total }})</span>
+        </h2>
         {% if pagination.hasPages() %}
             <div class="flex items-center justify-between text-sm">
                 {% if not pagination.onFirstPage() %}
-                    <a href="{{ pagination.urlForPage(pagination.page - 1) }}#comments" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    <a href="{{ pagination.urlForPage(pagination.page - 1) }}#comments" class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"></path></svg>
                         {{ trans('forum.pagination.prev') }}
                     </a>
                 {% else %}
@@ -87,8 +107,9 @@
                 {% endif %}
                 <span class="text-zinc-500 dark:text-zinc-500">{{ trans('forum.pagination.summary', { page: pagination.page, last: pagination.last_page, total: pagination.total }) }}</span>
                 {% if not pagination.onLastPage() %}
-                    <a href="{{ pagination.urlForPage(pagination.page + 1) }}#comments" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    <a href="{{ pagination.urlForPage(pagination.page + 1) }}#comments" class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
                         {{ trans('forum.pagination.next') }}
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
                     </a>
                 {% else %}
                     <span></span>
@@ -107,7 +128,8 @@
     {% if pagination.hasPages() %}
         <div class="mt-6 flex items-center justify-between text-sm">
             {% if not pagination.onFirstPage() %}
-                <a href="{{ pagination.urlForPage(pagination.page - 1) }}#comments" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    <a href="{{ pagination.urlForPage(pagination.page - 1) }}#comments" class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"></path></svg>
                     {{ trans('forum.pagination.prev') }}
                 </a>
             {% else %}
@@ -115,8 +137,9 @@
             {% endif %}
             <span class="text-zinc-500 dark:text-zinc-500">{{ trans('forum.pagination.summary', { page: pagination.page, last: pagination.last_page, total: pagination.total }) }}</span>
             {% if not pagination.onLastPage() %}
-                <a href="{{ pagination.urlForPage(pagination.page + 1) }}#comments" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                <a href="{{ pagination.urlForPage(pagination.page + 1) }}#comments" class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
                     {{ trans('forum.pagination.next') }}
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
                 </a>
             {% else %}
                 <span></span>

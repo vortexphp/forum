@@ -24,11 +24,11 @@
             <div class="mx-auto flex h-16 max-w-5xl items-center justify-between gap-3">
             <a href="/" class="group flex min-w-0 items-center gap-2.5 text-zinc-900 dark:text-white">
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-600/20 ring-1 ring-emerald-500/25 dark:shadow-emerald-950/50" aria-hidden="true">
-                    <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M8 9h8M8 13h5"></path></svg>
                 </span>
                 <span class="hidden min-w-0 flex-col leading-tight sm:flex">
-                    <span class="truncate text-sm font-semibold tracking-tight">{{ appName|default('App') }}</span>
-                    <span class="truncate text-[11px] font-medium text-zinc-500 dark:text-zinc-400">{{ trans('layout.tagline_short') }}</span>
+                    <span class="truncate text-sm font-semibold tracking-tight">VortexForum</span>
+                    <span class="truncate text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Discuss. Share. Build together.</span>
                 </span>
             </a>
 
@@ -65,10 +65,19 @@
                                 <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
                             </summary>
                             <div class="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-zinc-200 bg-white p-1.5 shadow-xl shadow-zinc-900/10 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/35">
-                                <a href="/account" class="flex items-center rounded-lg px-3 py-2 text-sm text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">{{ trans('nav.account') }}</a>
-                                <a href="{{ route('profile.show', { user: authUser.id }) }}" class="flex items-center rounded-lg px-3 py-2 text-sm text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">{{ trans('account.view_public_profile') }}</a>
+                                <a href="/account" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                                    <svg class="h-4 w-4 text-zinc-400 dark:text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 1 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                    <span>{{ trans('nav.account') }}</span>
+                                </a>
+                                <a href="{{ route('profile.show', { user: authUser.id }) }}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                                    <svg class="h-4 w-4 text-zinc-400 dark:text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 1 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                    <span>{{ trans('account.view_public_profile') }}</span>
+                                </a>
                                 <a href="{{ route('messages.inbox') }}" class="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
-                                    <span>{{ trans('nav.messages') }}</span>
+                                    <span class="inline-flex items-center gap-2">
+                                        <svg class="h-4 w-4 text-zinc-400 dark:text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                        <span>{{ trans('nav.messages') }}</span>
+                                    </span>
                                     {% if unreadMessagesCount|default(0) > 0 %}
                                         <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">{{ unreadMessagesCount }}</span>
                                     {% endif %}
@@ -76,7 +85,10 @@
                                 <div class="my-1 border-t border-zinc-200 dark:border-zinc-700"></div>
                                 <form method="post" action="/logout">
                                     <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
-                                    <button type="submit" class="flex w-full items-center rounded-lg px-3 py-2 text-left text-sm text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">{{ trans('nav.sign_out') }}</button>
+                                    <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-zinc-700 transition hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                                        <svg class="h-4 w-4 text-zinc-400 dark:text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 21-7-9 7-9"></path><path d="M22 12H3"></path></svg>
+                                        <span>{{ trans('nav.sign_out') }}</span>
+                                    </button>
                                 </form>
                             </div>
                         </details>
@@ -101,11 +113,11 @@
                 <div class="max-w-md">
                     <p class="flex items-center gap-2.5 text-sm font-semibold text-zinc-900 dark:text-white">
                         <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md" aria-hidden="true">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M8 9h8M8 13h5"></path></svg>
                         </span>
-                        {{ appName|default('App') }}
+                        VortexForum
                     </p>
-                    <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{{ trans('layout.footer_about') }}</p>
+                    <p class="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">VortexForum is a focused community space for threads, replies, and private conversations.</p>
                 </div>
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{{ trans('layout.footer_explore') }}</p>
@@ -130,7 +142,7 @@
                 </div>
             </div>
             <div class="mt-10 flex flex-col gap-2 border-t border-zinc-200/80 pt-8 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
-                <p>© {{ 'now'|date('Y') }} {{ appName|default('App') }}. {{ trans('layout.footer_rights') }}</p>
+                <p>© {{ 'now'|date('Y') }} VortexForum. {{ trans('layout.footer_rights') }}</p>
                 <p class="flex items-center gap-2 text-zinc-400 dark:text-zinc-600">
                     <span>{{ trans('layout.footer_stack') }}</span>
                     <span aria-hidden="true">•</span>

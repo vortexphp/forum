@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap");
 
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
@@ -9,7 +9,7 @@
 @source "../../lang/**/*.php";
 
 @theme {
-    --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -29,6 +29,15 @@
 
     .forum-mention {
         @apply rounded bg-emerald-100 px-1.5 py-0.5 font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300;
+    }
+
+    .forum-video-embed {
+        @apply relative my-4 w-full max-w-xl overflow-hidden rounded-xl;
+        padding-bottom: 40%;
+    }
+
+    .forum-video-embed iframe {
+        @apply absolute inset-0 h-full w-full border-0;
     }
 
     .forum-md-shell {

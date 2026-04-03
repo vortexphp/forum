@@ -4,60 +4,44 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Support\ForumContent\HtmlContentPlugin;
+use App\Support\ForumContent\Plugins\BbCodePlugin;
+use App\Support\ForumContent\Plugins\ClassicEmoticonPlugin;
+use App\Support\ForumContent\Plugins\EmojiPlugin;
+use App\Support\ForumContent\Plugins\MentionHighlightPlugin;
+use App\Support\ForumContent\Plugins\VideoEmbedPlugin;
+use App\Support\ForumContent\RawContentPlugin;
 use League\CommonMark\CommonMarkConverter;
 
 final class ForumContent
 {
-    /** @var array<string, string> */
-    private const EMOJI_MAP = [
-        ':smile:' => '😄',
-        ':thumbsup:' => '👍',
-        ':heart:' => '❤️',
-        ':fire:' => '🔥',
-        ':laugh:' => '😂',
-        ':sad:' => '😢',
-        ':wink:' => '😉',
-        ':rocket:' => '🚀',
-    ];
-
-    /** @var array<string, string> */
-    private const CLASSIC_EMOTICON_MAP = [
-        ':-D' => '😄',
-        ':D' => '😄',
-        ':-P' => '😛',
-        ':P' => '😛',
-        ':-p' => '😛',
-        ':p' => '😛',
-        ':-)' => '🙂',
-        ':)' => '🙂',
-        ':-(' => '🙁',
-        ':(' => '🙁',
-        ';-)' => '😉',
-        ';)' => '😉',
-        ":'(" => '😢',
-        'XD' => '😂',
-        'xD' => '😂',
-        '<3' => '❤️',
-    ];
-
     public static function render(string $raw): string
     {
-        $source = self::normalize($raw);
+        $source = trim($raw);
+        foreach (self::rawRenderPlugins() as $plugin) {
+            $source = $plugin->apply($source);
+        }
+
         $converter = new CommonMarkConverter([
             'html_input' => 'strip',
             'allow_unsafe_links' => false,
         ]);
         $html = (string) $converter->convert($source);
+        foreach (self::htmlRenderPlugins() as $plugin) {
+            $html = $plugin->apply($html);
+        }
 
-        return self::highlightMentions($html);
+        return $html;
     }
 
     public static function normalizeMessageText(string $raw): string
     {
         $text = $raw;
-        $text = str_replace(array_keys(self::EMOJI_MAP), array_values(self::EMOJI_MAP), $text);
+        foreach (self::messageTextPlugins() as $plugin) {
+            $text = $plugin->apply($text);
+        }
 
-        return self::convertClassicEmoticons($text);
+        return $text;
     }
 
     /**
@@ -77,38 +61,37 @@ final class ForumContent
         return array_keys($names);
     }
 
-    private static function normalize(string $raw): string
+    /**
+     * @return list<RawContentPlugin>
+     */
+    private static function rawRenderPlugins(): array
     {
-        $text = trim($raw);
-        $text = str_replace(array_keys(self::EMOJI_MAP), array_values(self::EMOJI_MAP), $text);
-        $text = self::convertClassicEmoticons($text);
-        $text = preg_replace('/\\[b\\](.*?)\\[\\/b\\]/is', '**$1**', $text) ?? $text;
-        $text = preg_replace('/\\[i\\](.*?)\\[\\/i\\]/is', '*$1*', $text) ?? $text;
-        $text = preg_replace('/\\[s\\](.*?)\\[\\/s\\]/is', '~~$1~~', $text) ?? $text;
-        $text = preg_replace('/\\[code\\](.*?)\\[\\/code\\]/is', "`$1`", $text) ?? $text;
-        $text = preg_replace('/\\[quote\\](.*?)\\[\\/quote\\]/is', '> $1', $text) ?? $text;
-        $text = preg_replace('/\\[url=(https?:\\/\\/[^\\]]+)\\](.*?)\\[\\/url\\]/is', '[$2]($1)', $text) ?? $text;
-        $text = preg_replace('/\\[u\\](.*?)\\[\\/u\\]/is', '<u>$1</u>', $text) ?? $text;
-
-        return $text;
+        return [
+            new EmojiPlugin(),
+            new ClassicEmoticonPlugin(),
+            new BbCodePlugin(),
+        ];
     }
 
-    private static function highlightMentions(string $html): string
+    /**
+     * @return list<RawContentPlugin>
+     */
+    private static function messageTextPlugins(): array
     {
-        return preg_replace(
-            '/(^|\\s)@([A-Za-z0-9_]{3,32})/u',
-            '$1<span class="forum-mention">@$2</span>',
-            $html
-        ) ?? $html;
+        return [
+            new EmojiPlugin(),
+            new ClassicEmoticonPlugin(),
+        ];
     }
 
-    private static function convertClassicEmoticons(string $text): string
+    /**
+     * @return list<HtmlContentPlugin>
+     */
+    private static function htmlRenderPlugins(): array
     {
-        foreach (self::CLASSIC_EMOTICON_MAP as $needle => $emoji) {
-            $pattern = '/(^|\\s)' . preg_quote($needle, '/') . '(?=\\s|$)/u';
-            $text = preg_replace($pattern, '$1' . $emoji, $text) ?? $text;
-        }
-
-        return $text;
+        return [
+            new VideoEmbedPlugin(),
+            new MentionHighlightPlugin(),
+        ];
     }
 }
