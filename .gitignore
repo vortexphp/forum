@@ -7,3 +7,10 @@ storage/testing.sqlite
 storage/logs/*.log
 composer-setup.php
 composer.phar
+assets/views/.DS_Store
+assets/.DS_Store
+app/.DS_Store
+.DS_Store
+.cursor/.DS_Store
+.DS_Store
+.DS_Store
