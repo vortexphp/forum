@@ -6,6 +6,7 @@ namespace App\Handlers;
 
 use App\Models\PrivateMessage;
 use App\Models\User;
+use App\Support\ForumContent;
 use Vortex\Http\Csrf;
 use Vortex\Http\Request;
 use Vortex\Http\Response;
@@ -26,9 +27,10 @@ final class PrivateMessageHandler
         $page = max(1, (int) Request::input('page', 1));
         $perPage = 20;
         $payload = PrivateMessage::paginateInbox((int) $user->id, $page, $perPage);
-        $conversations = array_map(fn (array $row): array => $row + [
+        $conversations = array_map(fn (array $row): array => array_merge($row, [
+            'last_body' => ForumContent::normalizeMessageText((string) ($row['last_body'] ?? '')),
             'last_created_ago' => $this->formatAgo((string) ($row['last_created_at'] ?? '')),
-        ], $payload['items']);
+        ]), $payload['items']);
         $lastPage = max(1, (int) ceil($payload['total'] / $perPage));
         $pagination = new Paginator($conversations, $payload['total'], $page, $perPage, $lastPage);
         $status = Session::flash('status');
@@ -64,9 +66,10 @@ final class PrivateMessageHandler
         $page = max(1, (int) Request::input('page', 1));
         $perPage = 25;
         $payload = PrivateMessage::paginateConversation((int) $user->id, $otherId, $page, $perPage);
-        $messages = array_reverse(array_map(fn (array $row): array => $row + [
+        $messages = array_reverse(array_map(fn (array $row): array => array_merge($row, [
+            'body' => ForumContent::normalizeMessageText((string) ($row['body'] ?? '')),
             'created_ago' => $this->formatAgo((string) ($row['created_at'] ?? '')),
-        ], $payload['items']));
+        ]), $payload['items']));
         $lastPage = max(1, (int) ceil($payload['total'] / $perPage));
         $pagination = new Paginator($messages, $payload['total'], $page, $perPage, $lastPage);
 
@@ -151,14 +154,20 @@ final class PrivateMessageHandler
         }
 
         PrivateMessage::markConversationRead((int) $user->id, $otherId);
-        $payload = PrivateMessage::paginateConversation((int) $user->id, $otherId, 1, 100);
-        $messages = array_reverse(array_map(fn (array $row): array => $row + [
+        $page = max(1, (int) Request::input('page', 1));
+        $perPage = 25;
+        $payload = PrivateMessage::paginateConversation((int) $user->id, $otherId, $page, $perPage);
+        $messages = array_reverse(array_map(fn (array $row): array => array_merge($row, [
+            'body' => ForumContent::normalizeMessageText((string) ($row['body'] ?? '')),
             'created_ago' => $this->formatAgo((string) ($row['created_at'] ?? '')),
-        ], $payload['items']));
+        ]), $payload['items']));
+        $lastPage = max(1, (int) ceil($payload['total'] / $perPage));
 
         return $this->json([
             'ok' => true,
             'items' => $messages,
+            'page' => $page,
+            'has_more' => $page < $lastPage,
         ]);
     }
 

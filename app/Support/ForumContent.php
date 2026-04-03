@@ -52,6 +52,14 @@ final class ForumContent
         return self::highlightMentions($html);
     }
 
+    public static function normalizeMessageText(string $raw): string
+    {
+        $text = $raw;
+        $text = str_replace(array_keys(self::EMOJI_MAP), array_values(self::EMOJI_MAP), $text);
+
+        return self::convertClassicEmoticons($text);
+    }
+
     /**
      * @return list<string>
      */

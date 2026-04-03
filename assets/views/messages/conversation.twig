@@ -1,11 +1,14 @@
 {% extends 'layouts/default.twig' %}
 {% block content %}
-<div class="mx-auto max-w-4xl" data-conversation-root data-feed-url="{{ route('messages.feed', { user: otherUser.id }) }}" data-send-url="{{ route('messages.send_json', { user: otherUser.id }) }}" data-current-user-id="{{ authUser.id|default(0) }}" data-you-label="{{ trans('messages.conversation.you') }}" data-ago-template="{{ trans('messages.time.ago', { time: ':time' }) }}">
+<div class="mx-auto max-w-4xl" data-conversation-root data-feed-url="{{ route('messages.feed', { user: otherUser.id }) }}" data-send-url="{{ route('messages.send_json', { user: otherUser.id }) }}" data-current-user-id="{{ authUser.id|default(0) }}" data-profile-url-base="/users/" data-you-label="{{ trans('messages.conversation.you') }}" data-ago-template="{{ trans('messages.time.ago', { time: ':time' }) }}">
     <header class="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/60">
         <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
             <a href="{{ route('messages.inbox') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400">{{ trans('messages.inbox.title') }}</a>
         </p>
-        <h1 class="mt-2 text-2xl font-semibold text-zinc-900 dark:text-white">{{ trans('messages.conversation.with', { name: otherUser.name }) }}</h1>
+        <h1 class="mt-2 inline-flex items-center gap-2 text-3xl font-semibold text-zinc-900 dark:text-white">
+            <svg class="h-6 w-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            {{ trans('messages.conversation.with', { name: otherUser.name }) }}
+        </h1>
     </header>
 
     {% if status %}
@@ -15,78 +18,87 @@
         <div class="mt-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-300">{{ errors._form }}</div>
     {% endif %}
 
-    <section class="mt-4 space-y-3" data-message-list>
-        {% for message in messages %}
-            {% set own = authUser is not null and message.sender_id == authUser.id %}
-            <div class="flex {{ own ? 'justify-end' : 'justify-start' }}">
-                <article class="w-full max-w-[90%] sm:max-w-[78%]">
-                    <div class="flex items-end gap-2 {{ own ? 'flex-row-reverse' : '' }}">
-                        {% if own %}
-                            {% set ownAvatar = authUser is not null ? (authUser.avatar|default('')) : '' %}
-                            {% if ownAvatar != '' %}
-                                <img src="{{ public_url(ownAvatar) }}" alt="{{ trans('messages.conversation.you') }}" class="h-8 w-8 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700" width="32" height="32">
+    <section class="mt-4 overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/60" style="max-height: 64vh;">
+        <div class="hidden border-b border-zinc-200 px-4 py-2 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400" data-loading-older>
+            <span class="inline-flex items-center gap-2">
+                <svg class="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"></path></svg>
+                Loading older messages...
+            </span>
+        </div>
+        <div class="space-y-3 overflow-y-auto overflow-x-hidden p-4" data-message-list style="max-height: 64vh;">
+            <div class="hidden rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800/40 dark:text-zinc-300" data-loading-initial>
+                <span class="inline-flex items-center gap-2">
+                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"></path></svg>
+                    Loading messages...
+                </span>
+            </div>
+            {% for message in messages %}
+                {% set own = authUser is not null and message.sender_id == authUser.id %}
+                <div class="flex {{ own ? 'justify-end' : 'justify-start' }}">
+                    <article class="w-full max-w-[95%] sm:max-w-[86%]">
+                        <div class="flex items-end gap-2 {{ own ? 'flex-row-reverse' : '' }}">
+                            {% if own %}
+                                {% set ownAvatar = authUser is not null ? (authUser.avatar|default('')) : '' %}
+                                {% if ownAvatar != '' %}
+                                    <a href="{{ route('profile.show', { user: authUser.id }) }}" class="shrink-0">
+                                        <img src="{{ public_url(ownAvatar) }}" alt="{{ trans('messages.conversation.you') }}" class="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-200 transition hover:ring-emerald-400 dark:ring-zinc-700 dark:hover:ring-emerald-500" width="40" height="40">
+                                    </a>
+                                {% else %}
+                                    <a href="{{ route('profile.show', { user: authUser.id }) }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">{{ trans('messages.conversation.you')|slice(0,1)|upper }}</a>
+                                {% endif %}
                             {% else %}
-                                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zinc-200 text-[11px] font-semibold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">{{ trans('messages.conversation.you')|slice(0,1)|upper }}</span>
+                                {% if message.sender_avatar is defined and message.sender_avatar %}
+                                    <a href="{{ route('profile.show', { user: message.sender_id }) }}" class="shrink-0">
+                                        <img src="{{ public_url(message.sender_avatar) }}" alt="{{ message.sender_name }}" class="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-200 transition hover:ring-emerald-400 dark:ring-zinc-700 dark:hover:ring-emerald-500" width="40" height="40">
+                                    </a>
+                                {% else %}
+                                    <a href="{{ route('profile.show', { user: message.sender_id }) }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">{{ message.sender_name|slice(0,1)|upper }}</a>
+                                {% endif %}
                             {% endif %}
-                        {% else %}
-                            {% if message.sender_avatar is defined and message.sender_avatar %}
-                                <img src="{{ public_url(message.sender_avatar) }}" alt="{{ message.sender_name }}" class="h-8 w-8 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700" width="32" height="32">
-                            {% else %}
-                                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zinc-200 text-[11px] font-semibold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">{{ message.sender_name|slice(0,1)|upper }}</span>
-                            {% endif %}
-                        {% endif %}
-                        <div class="min-w-0 flex-1 rounded-2xl border px-4 py-3 {{ own ? 'border-emerald-300 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-900/15' : 'border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/60' }}">
-                            <div class="flex items-center justify-between gap-3">
-                                <p class="text-sm font-semibold {{ own ? 'text-emerald-800 dark:text-emerald-300' : 'text-zinc-900 dark:text-white' }}">
-                                    {{ own ? trans('messages.conversation.you') : message.sender_name }}
-                                </p>
-                                <span class="text-xs text-zinc-500 dark:text-zinc-500">{{ trans('messages.time.ago', { time: message.created_ago|default('1m') }) }}</span>
+                            <div class="min-w-0 flex-1 rounded-2xl border px-5 py-4 {{ own ? 'border-emerald-300 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-900/15' : 'border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/60' }}">
+                                <div class="flex items-center justify-between gap-3">
+                                    <p class="inline-flex items-center gap-1.5 text-base font-semibold {{ own ? 'text-emerald-800 dark:text-emerald-300' : 'text-zinc-900 dark:text-white' }}">
+                                        <svg class="h-4 w-4 {{ own ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-400 dark:text-zinc-500' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                        {{ own ? trans('messages.conversation.you') : message.sender_name }}
+                                    </p>
+                                    <span class="text-sm text-zinc-500 dark:text-zinc-500">{{ trans('messages.time.ago', { time: message.created_ago|default('1m') }) }}</span>
+                                </div>
+                                <p class="mt-2 whitespace-pre-wrap break-words text-base text-zinc-700 dark:text-zinc-300">{{ message.body }}</p>
                             </div>
-                            <p class="mt-2 whitespace-pre-wrap break-words text-sm text-zinc-700 dark:text-zinc-300">{{ message.body }}</p>
                         </div>
-                    </div>
-                </article>
-            </div>
-        {% else %}
-            <div class="rounded-xl border border-zinc-200 bg-white p-6 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400">
-                {{ trans('messages.conversation.empty') }}
-            </div>
-        {% endfor %}
+                    </article>
+                </div>
+            {% else %}
+                <div class="rounded-xl border border-zinc-200 bg-white p-6 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400">
+                    {{ trans('messages.conversation.empty') }}
+                </div>
+            {% endfor %}
+        </div>
     </section>
 
-    {% if pagination.hasPages() %}
-        <div class="mt-6 flex items-center justify-between text-sm">
-            {% if not pagination.onFirstPage() %}
-                <a href="{{ pagination.urlForPage(pagination.page - 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
-                    {{ trans('forum.pagination.prev') }}
-                </a>
-            {% else %}
-                <span></span>
-            {% endif %}
-            <span class="text-zinc-500 dark:text-zinc-500">{{ trans('forum.pagination.summary', { page: pagination.page, last: pagination.last_page, total: pagination.total }) }}</span>
-            {% if not pagination.onLastPage() %}
-                <a href="{{ pagination.urlForPage(pagination.page + 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
-                    {{ trans('forum.pagination.next') }}
-                </a>
-            {% else %}
-                <span></span>
-            {% endif %}
-        </div>
-    {% endif %}
-
     <section class="mt-6 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/60">
-        <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">{{ trans('messages.compose.title') }}</h2>
+        <h2 class="inline-flex items-center gap-2 text-xl font-semibold text-zinc-900 dark:text-white">
+            <svg class="h-5 w-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"></path><path d="M22 2 11 13"></path></svg>
+            {{ trans('messages.compose.title') }}
+        </h2>
         <form method="post" action="{{ route('messages.send', { user: otherUser.id }) }}" class="mt-3 space-y-3" data-message-form>
             <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
             <div class="hidden rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300" data-message-form-status></div>
             <div class="hidden rounded-lg border border-rose-300 bg-rose-50 p-3 text-xs text-rose-700 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-300" data-message-form-error></div>
             <div>
-                <textarea name="body" rows="5" class="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100" placeholder="{{ trans('messages.compose.placeholder') }}">{{ old.body|default('') }}</textarea>
+                <textarea name="body" rows="5" class="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100" placeholder="{{ trans('messages.compose.placeholder') }}">{{ old.body|default('') }}</textarea>
                 {% if errors.body is defined %}
                     <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ errors.body }}</p>
                 {% endif %}
             </div>
-            <button type="submit" class="inline-flex rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">{{ trans('messages.compose.send') }}</button>
+            <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-emerald-500" data-send-button>
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"></path><path d="M22 2 11 13"></path></svg>
+                <span data-send-label>{{ trans('messages.compose.send') }}</span>
+                <span class="hidden items-center gap-2" data-send-loading>
+                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"></path></svg>
+                    Sending...
+                </span>
+            </button>
         </form>
     </section>
 </div>
