@@ -32,6 +32,20 @@
                 </span>
             </a>
 
+            <div class="relative hidden w-full max-w-xl lg:block" data-header-search data-endpoint="{{ route('search.suggest') }}" data-label-thread="{{ trans('search.type.thread') }}" data-label-category="{{ trans('search.type.category') }}" data-label-user="{{ trans('search.type.user') }}" data-label-empty="{{ trans('search.empty') }}">
+                <div class="relative">
+                    <input type="search" data-search-input placeholder="{{ trans('search.placeholder') }}" autocomplete="off" class="w-full rounded-xl border border-zinc-300 bg-white/95 py-2 pl-10 pr-14 text-sm text-zinc-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-900/95 dark:text-zinc-100">
+                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+                    </span>
+                    <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-zinc-300 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">/</span>
+                </div>
+                <div class="absolute left-0 right-0 top-[calc(100%+0.4rem)] hidden rounded-xl border border-zinc-200 bg-white p-2 shadow-xl shadow-zinc-900/10 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/35" data-search-panel>
+                    <div class="max-h-96 space-y-1 overflow-auto" data-search-results></div>
+                    <p class="hidden px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400" data-search-empty>{{ trans('search.empty') }}</p>
+                </div>
+            </div>
+
             <div class="flex shrink-0 flex-wrap items-center justify-end gap-1 sm:gap-2">
                 <nav class="flex flex-wrap items-center gap-0.5 text-sm font-medium sm:gap-1" aria-label="{{ trans('layout.nav_label') }}">
                     <a href="/forum" class="rounded-lg px-2.5 py-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 sm:px-3 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-white">{{ trans('nav.forum') }}</a>
@@ -42,6 +56,12 @@
                                 <img src="{{ public_url(navAvatar) }}" alt="" class="h-8 w-8 rounded-full object-cover ring-2 ring-white dark:ring-zinc-800" width="32" height="32">
                             </a>
                         {% endif %}
+                        <a href="{{ route('messages.inbox') }}" class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 sm:px-3 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-white">
+                            <span>{{ trans('nav.messages') }}</span>
+                            {% if unreadMessagesCount|default(0) > 0 %}
+                                <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">{{ unreadMessagesCount }}</span>
+                            {% endif %}
+                        </a>
                         <a href="/account" class="rounded-lg px-2.5 py-2 text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 sm:px-3 dark:text-zinc-400 dark:hover:bg-zinc-800/80 dark:hover:text-white">{{ trans('nav.account') }}</a>
                         <form method="post" action="/logout" class="inline">
                             <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
@@ -52,15 +72,6 @@
                         <a href="/register" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-500 dark:shadow-emerald-950/40">{{ trans('nav.register') }}</a>
                     {% endif %}
                 </nav>
-                {% if supportedLocales is iterable and supportedLocales|length > 0 %}
-                    <div class="ml-1 flex items-center gap-0.5 rounded-lg border border-zinc-200/90 bg-white/70 p-0.5 text-[11px] font-medium dark:border-zinc-700 dark:bg-zinc-900/50">
-                        {% for code in supportedLocales %}
-                            {% if code is string and code != '' %}
-                                <a href="?lang={{ code }}" class="rounded-md px-2 py-1 {{ (locale|default('')) == code ? 'bg-emerald-600 text-white shadow-sm' : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200' }}" hreflang="{{ code }}">{{ trans('locale.native.' ~ code) }}</a>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                {% endif %}
             </div>
             </div>
         </div>
@@ -91,6 +102,18 @@
                             <li><a href="/login" class="text-zinc-600 transition hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400">{{ trans('nav.sign_in') }}</a></li>
                         {% endif %}
                     </ul>
+                    {% if supportedLocales is iterable and supportedLocales|length > 0 %}
+                        <form method="get" action="" class="mt-4">
+                            <label for="footer-language" class="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{{ trans('layout.language') }}</label>
+                            <select id="footer-language" name="lang" onchange="this.form.submit()" class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+                                {% for code in supportedLocales %}
+                                    {% if code is string and code != '' %}
+                                        <option value="{{ code }}" {{ (locale|default('')) == code ? 'selected' : '' }}>{{ trans('locale.native.' ~ code) }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
             <div class="mt-10 flex flex-col gap-2 border-t border-zinc-200/80 pt-8 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
@@ -101,6 +124,8 @@
         </div>
     </footer>
 </div>
-{% block body_end %}{% endblock %}
+{% block body_end %}
+    <script src="/js/header-search.js"></script>
+{% endblock %}
 </body>
 </html>

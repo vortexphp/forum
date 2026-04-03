@@ -18,6 +18,10 @@
 
         <p class="mt-10">
             <a href="/account/edit" class="inline-flex rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-500">{{ trans('account.edit_profile') }}</a>
+            {% if authUser is not null %}
+                <a href="{{ route('profile.show', { user: authUser.id }) }}" class="ml-2 inline-flex rounded-xl border border-zinc-300 px-5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-300">{{ trans('account.view_public_profile') }}</a>
+                <a href="{{ route('messages.inbox') }}" class="ml-2 inline-flex rounded-xl border border-zinc-300 px-5 py-2.5 text-sm font-semibold text-zinc-700 transition hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-300">{{ trans('account.messages') }}</a>
+            {% endif %}
         </p>
     </div>
 </div>

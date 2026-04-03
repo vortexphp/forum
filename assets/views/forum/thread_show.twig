@@ -11,7 +11,21 @@
         <div class="flex flex-wrap items-start justify-between gap-3">
             <div>
                 <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white">{{ thread.title }}</h1>
-                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-500">{{ trans('forum.thread.by') }} {{ thread.author_name }} · {{ thread.created_at }}</p>
+                <p class="mt-2 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-500">
+                    {% if thread.author_avatar is defined and thread.author_avatar %}
+                        <a href="{{ route('profile.show', { user: thread.user_id }) }}">
+                            <img src="{{ public_url(thread.author_avatar) }}" alt="{{ thread.author_name }}" class="h-6 w-6 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700" width="24" height="24">
+                        </a>
+                    {% else %}
+                        <a href="{{ route('profile.show', { user: thread.user_id }) }}" class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-semibold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">{{ thread.author_name|slice(0, 1)|upper }}</a>
+                    {% endif %}
+                    <span>{{ trans('forum.thread.by') }} <a href="{{ route('profile.show', { user: thread.user_id }) }}" class="font-semibold hover:text-emerald-600 dark:hover:text-emerald-400">{{ thread.author_name }}</a> · {{ thread.created_at }}</span>
+                    {% if thread.author_primary_badge is defined and thread.author_primary_badge %}
+                        <span class="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] font-semibold text-sky-800 dark:bg-sky-900/35 dark:text-sky-300">{{ trans('badges.' ~ thread.author_primary_badge) }}</span>
+                    {% elseif thread.author_role == 'moderator' %}
+                        <span class="rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold text-violet-800 dark:bg-violet-900/35 dark:text-violet-300">{{ trans('forum.moderation.badge') }}</span>
+                    {% endif %}
+                </p>
             </div>
             {% if authUser is not null and authUser.role == 'moderator' %}
                 <div class="flex flex-wrap items-center gap-2">
@@ -60,7 +74,27 @@
         <div class="mt-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-300">{{ errors._form }}</div>
     {% endif %}
 
-    <section class="mt-6 space-y-3">
+    <section id="comments" class="mt-6 space-y-3">
+        <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">{{ trans('forum.reply.heading') }} ({{ pagination.total }})</h2>
+        {% if pagination.hasPages() %}
+            <div class="flex items-center justify-between text-sm">
+                {% if not pagination.onFirstPage() %}
+                    <a href="{{ pagination.urlForPage(pagination.page - 1) }}#comments" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                        {{ trans('forum.pagination.prev') }}
+                    </a>
+                {% else %}
+                    <span></span>
+                {% endif %}
+                <span class="text-zinc-500 dark:text-zinc-500">{{ trans('forum.pagination.summary', { page: pagination.page, last: pagination.last_page, total: pagination.total }) }}</span>
+                {% if not pagination.onLastPage() %}
+                    <a href="{{ pagination.urlForPage(pagination.page + 1) }}#comments" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                        {{ trans('forum.pagination.next') }}
+                    </a>
+                {% else %}
+                    <span></span>
+                {% endif %}
+            </div>
+        {% endif %}
         {% for post in posts %}
             {% include 'forum/_post_item.twig' with { category: category, thread: thread, post: post } %}
         {% else %}
@@ -73,7 +107,7 @@
     {% if pagination.hasPages() %}
         <div class="mt-6 flex items-center justify-between text-sm">
             {% if not pagination.onFirstPage() %}
-                <a href="{{ pagination.urlForPage(pagination.page - 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                <a href="{{ pagination.urlForPage(pagination.page - 1) }}#comments" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
                     {{ trans('forum.pagination.prev') }}
                 </a>
             {% else %}
@@ -81,7 +115,7 @@
             {% endif %}
             <span class="text-zinc-500 dark:text-zinc-500">{{ trans('forum.pagination.summary', { page: pagination.page, last: pagination.last_page, total: pagination.total }) }}</span>
             {% if not pagination.onLastPage() %}
-                <a href="{{ pagination.urlForPage(pagination.page + 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                <a href="{{ pagination.urlForPage(pagination.page + 1) }}#comments" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
                     {{ trans('forum.pagination.next') }}
                 </a>
             {% else %}
@@ -94,4 +128,8 @@
         {% include 'forum/_reply_form.twig' with { category: category, thread: thread, errors: errors, old: old } %}
     </section>
 </div>
+{% endblock %}
+{% block body_end %}
+    {{ parent() }}
+    <script src="/js/forum-markdown-editor.js"></script>
 {% endblock %}

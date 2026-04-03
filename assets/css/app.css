@@ -30,4 +30,24 @@
     .forum-mention {
         @apply rounded bg-emerald-100 px-1.5 py-0.5 font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300;
     }
+
+    .forum-md-shell {
+        @apply rounded-lg border border-zinc-300 dark:border-zinc-700;
+    }
+
+    .forum-md-toolbar {
+        @apply flex flex-wrap gap-1 border-b border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-800 dark:bg-zinc-900;
+    }
+
+    .forum-md-btn {
+        @apply rounded border border-zinc-300 bg-white px-2 py-1 text-xs font-semibold text-zinc-700 transition hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-300;
+    }
+
+    .forum-md-shell textarea {
+        @apply min-h-44 w-full resize-y border-0 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none ring-0 dark:text-zinc-100;
+    }
+
+    .forum-md-preview {
+        @apply prose prose-zinc max-w-none border-t border-zinc-200 bg-white px-3 py-3 text-sm dark:border-zinc-800 dark:bg-zinc-950 dark:prose-invert;
+    }
 }

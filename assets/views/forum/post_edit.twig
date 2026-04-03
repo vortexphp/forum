@@ -18,7 +18,7 @@
         {% endif %}
 
         <label for="post-body" class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">{{ trans('forum.post.field_body') }}</label>
-        <textarea id="post-body" name="body" rows="10" class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none ring-emerald-500 focus:ring dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">{{ old.body|default(post.body) }}</textarea>
+        <textarea id="post-body" name="body" rows="10" class="js-markdown-editor w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none ring-emerald-500 focus:ring dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">{{ old.body|default(post.body) }}</textarea>
         {% if errors.body is defined %}
             <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ errors.body }}</p>
         {% endif %}
@@ -29,4 +29,8 @@
         </div>
     </form>
 </div>
+{% endblock %}
+{% block body_end %}
+    {{ parent() }}
+    <script src="/js/forum-markdown-editor.js"></script>
 {% endblock %}

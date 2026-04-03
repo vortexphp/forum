@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Thread;
 use App\Models\User;
+use App\Support\ForumBadgeService;
 use Vortex\Http\Csrf;
 use Vortex\Http\Request;
 use Vortex\Http\Response;
@@ -64,6 +65,7 @@ final class PostHandler
         ]);
 
         Thread::touchAfterReply((int) $thread->id);
+        ForumBadgeService::recalculateForUser((int) $user->id);
 
         Session::flash('status', \trans('forum.reply.created'));
 

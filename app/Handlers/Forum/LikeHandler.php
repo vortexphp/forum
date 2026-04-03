@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostLike;
 use App\Models\Thread;
+use App\Support\ForumBadgeService;
 use Vortex\Http\Csrf;
 use Vortex\Http\Response;
 use Vortex\Http\Session;
@@ -43,6 +44,8 @@ final class LikeHandler
         }
 
         $liked = PostLike::toggle((int) $post->id, (int) $uid);
+        ForumBadgeService::recalculateForUser((int) $uid);
+        ForumBadgeService::recalculateForUser((int) $post->user_id);
         Session::flash('status', $liked ? \trans('forum.likes.added') : \trans('forum.likes.removed'));
 
         return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use App\Models\PrivateMessage;
 use App\Models\User;
 use Closure;
 use Vortex\Contracts\Middleware;
@@ -27,6 +28,7 @@ final class ShareAuthUser implements Middleware
         }
 
         View::share('authUser', $user);
+        View::share('unreadMessagesCount', $uid === null ? 0 : PrivateMessage::unreadCountForUser($uid));
         View::share('csrfToken', Csrf::token());
 
         return $next($request);

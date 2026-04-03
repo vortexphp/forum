@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\Thread;
 use App\Models\User;
 use App\Models\PostLike;
+use App\Support\ForumBadgeService;
 use App\Support\ForumContent;
 use Vortex\Http\Csrf;
 use Vortex\Http\Request;
@@ -38,7 +39,8 @@ final class ThreadHandler
         }
 
         $page = max(1, (int) Request::input('page', 1));
-        $postsPayload = Post::paginateForThread((int) $thread->id, $page, 20);
+        $commentsPerPage = 10;
+        $postsPayload = Post::paginateForThread((int) $thread->id, $page, $commentsPerPage);
         $uid = Session::authUserId();
         $postIds = [];
         foreach ($postsPayload['items'] as $row) {
@@ -52,8 +54,8 @@ final class ThreadHandler
             $postsRendered[] = $row;
         }
 
-        $lastPage = max(1, (int) ceil($postsPayload['total'] / 20));
-        $pagination = new Paginator($postsRendered, $postsPayload['total'], $page, 20, $lastPage);
+        $lastPage = max(1, (int) ceil($postsPayload['total'] / $commentsPerPage));
+        $pagination = new Paginator($postsRendered, $postsPayload['total'], $page, $commentsPerPage, $lastPage);
 
         $status = Session::flash('status');
         $errors = Session::flash('errors');
@@ -160,6 +162,7 @@ final class ThreadHandler
             'edited_at' => null,
         ]);
         Thread::syncTags((int) $thread->id, $this->parseTags($data['tags']));
+        ForumBadgeService::recalculateForUser((int) $user->id);
 
         Session::flash('status', \trans('forum.thread.created'));
 

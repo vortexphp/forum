@@ -12,6 +12,7 @@ return [
     'layout' => [
         'tagline_short' => 'Modern PHP stack',
         'nav_label' => 'Main navigation',
+        'language' => 'Language',
         'footer_about' => 'A compact foundation for sites that need routing, Twig views, auth, and a small CLI—without drowning in framework ceremony.',
         'footer_explore' => 'Explore',
         'footer_rights' => 'All rights reserved.',
@@ -19,6 +20,7 @@ return [
     ],
     'nav' => [
         'forum' => 'Forum',
+        'messages' => 'Messages',
         'account' => 'Account',
         'sign_out' => 'Sign out',
         'sign_in' => 'Sign in',
@@ -71,6 +73,8 @@ return [
         'signed_in_as' => 'Signed in as',
         'name_label' => 'Name:',
         'edit_profile' => 'Edit profile',
+        'view_public_profile' => 'View public profile',
+        'messages' => 'Private messages',
         'edit' => [
             'title' => 'Edit profile',
             'back' => '← Back to account',
@@ -85,6 +89,66 @@ return [
             'photo_hint' => 'JPEG, PNG, or WebP. Max size is set in UPLOAD_MAX_BYTES (default 2 MB).',
             'photo_current' => 'Current photo',
             'remove_photo' => 'Remove current photo',
+        ],
+    ],
+    'profile' => [
+        'title' => ':name profile',
+        'member_since' => 'Member since',
+        'send_message' => 'Send private message',
+        'recent_threads' => 'Recent threads',
+        'recent_posts' => 'Recent comments',
+        'empty_threads' => 'No threads yet.',
+        'empty_posts' => 'No comments yet.',
+        'stats' => [
+            'threads' => 'Threads',
+            'posts' => 'Comments',
+            'likes_received' => 'Likes received',
+            'likes_given' => 'Likes given',
+            'flags_received' => 'Flags received',
+        ],
+    ],
+    'badges' => [
+        'moderator' => 'Moderator',
+        'first_thread' => 'First Thread',
+        'first_reply' => 'First Reply',
+        'thread_starter' => 'Thread Starter',
+        'active_member' => 'Active Member',
+        'community_voice' => 'Community Voice',
+        'liked_author' => 'Liked Author',
+        'appreciated_author' => 'Appreciated Author',
+        'supporter' => 'Supporter',
+        'veteran' => 'Veteran',
+    ],
+    'search' => [
+        'placeholder' => 'Search threads, categories, users...',
+        'empty' => 'No results found.',
+        'type' => [
+            'thread' => 'Thread',
+            'category' => 'Category',
+            'user' => 'User',
+        ],
+    ],
+    'messages' => [
+        'sent' => 'Message sent.',
+        'validation' => [
+            'body_required' => 'Message text is required.',
+        ],
+        'inbox' => [
+            'title' => 'Private messages',
+            'empty' => 'No conversations yet.',
+            'unread' => ':count unread messages',
+            'unread_badge' => ':count new',
+        ],
+        'conversation' => [
+            'title' => 'Conversation with :name',
+            'with' => 'Conversation with :name',
+            'you' => 'You',
+            'empty' => 'No messages yet. Start the conversation.',
+        ],
+        'compose' => [
+            'title' => 'Send a message',
+            'placeholder' => 'Write your private message...',
+            'send' => 'Send',
         ],
     ],
     'forum' => [
@@ -118,6 +182,7 @@ return [
             'last_post' => 'Last post:',
         ],
         'reply' => [
+            'heading' => 'Comments',
             'label' => 'Add your reply',
             'submit' => 'Post reply',
             'created' => 'Reply posted.',

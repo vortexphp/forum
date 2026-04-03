@@ -12,6 +12,7 @@ return [
     'layout' => [
         'tagline_short' => 'Модерен PHP стек',
         'nav_label' => 'Основна навигация',
+        'language' => 'Език',
         'footer_about' => 'Компактна основа за сайтове с маршрути, Twig изгледи, акаунти и малък CLI—без излишна церемония.',
         'footer_explore' => 'Разгледайте',
         'footer_rights' => 'Всички права запазени.',
@@ -19,6 +20,7 @@ return [
     ],
     'nav' => [
         'forum' => 'Форум',
+        'messages' => 'Съобщения',
         'account' => 'Профил',
         'sign_out' => 'Изход',
         'sign_in' => 'Вход',
@@ -71,6 +73,8 @@ return [
         'signed_in_as' => 'Влезли сте като',
         'name_label' => 'Име:',
         'edit_profile' => 'Редактирай профил',
+        'view_public_profile' => 'Виж публичен профил',
+        'messages' => 'Лични съобщения',
         'edit' => [
             'title' => 'Редакция на профил',
             'back' => '← Назад към профила',
@@ -85,6 +89,66 @@ return [
             'photo_hint' => 'JPEG, PNG или WebP. Максимум по UPLOAD_MAX_BYTES (по подразбиране 2 MB).',
             'photo_current' => 'Текуща снимка',
             'remove_photo' => 'Премахни текущата снимка',
+        ],
+    ],
+    'profile' => [
+        'title' => 'Профил на :name',
+        'member_since' => 'Потребител от',
+        'send_message' => 'Изпрати лично съобщение',
+        'recent_threads' => 'Последни теми',
+        'recent_posts' => 'Последни коментари',
+        'empty_threads' => 'Все още няма теми.',
+        'empty_posts' => 'Все още няма коментари.',
+        'stats' => [
+            'threads' => 'Теми',
+            'posts' => 'Коментари',
+            'likes_received' => 'Получени харесвания',
+            'likes_given' => 'Дадени харесвания',
+            'flags_received' => 'Получени доклади',
+        ],
+    ],
+    'badges' => [
+        'moderator' => 'Модератор',
+        'first_thread' => 'Първа тема',
+        'first_reply' => 'Първи отговор',
+        'thread_starter' => 'Стартер на теми',
+        'active_member' => 'Активен член',
+        'community_voice' => 'Глас на общността',
+        'liked_author' => 'Харесван автор',
+        'appreciated_author' => 'Оценен автор',
+        'supporter' => 'Подкрепящ',
+        'veteran' => 'Ветеран',
+    ],
+    'search' => [
+        'placeholder' => 'Търсете теми, категории, потребители...',
+        'empty' => 'Няма резултати.',
+        'type' => [
+            'thread' => 'Тема',
+            'category' => 'Категория',
+            'user' => 'Потребител',
+        ],
+    ],
+    'messages' => [
+        'sent' => 'Съобщението е изпратено.',
+        'validation' => [
+            'body_required' => 'Текстът на съобщението е задължителен.',
+        ],
+        'inbox' => [
+            'title' => 'Лични съобщения',
+            'empty' => 'Все още няма разговори.',
+            'unread' => ':count непрочетени съобщения',
+            'unread_badge' => ':count нови',
+        ],
+        'conversation' => [
+            'title' => 'Разговор с :name',
+            'with' => 'Разговор с :name',
+            'you' => 'Вие',
+            'empty' => 'Все още няма съобщения. Започнете разговора.',
+        ],
+        'compose' => [
+            'title' => 'Изпрати съобщение',
+            'placeholder' => 'Напишете лично съобщение...',
+            'send' => 'Изпрати',
         ],
     ],
     'forum' => [
@@ -118,6 +182,7 @@ return [
             'last_post' => 'Последен пост:',
         ],
         'reply' => [
+            'heading' => 'Коментари',
             'label' => 'Добавете отговор',
             'submit' => 'Публикувай отговор',
             'created' => 'Отговорът е публикуван.',

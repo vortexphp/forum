@@ -36,6 +36,8 @@ final class Post extends Model
 
         $items = static::connection()->select(
             'SELECT p.*, u.name AS author_name, u.avatar AS author_avatar, u.role AS author_role,'
+            . ' (SELECT b.badge_key FROM user_badges ub INNER JOIN badges b ON b.id = ub.badge_id'
+            . '   WHERE ub.user_id = u.id ORDER BY b.sort_order ASC, ub.awarded_at ASC LIMIT 1) AS author_primary_badge,'
             . ' COALESCE(COUNT(pl.id), 0) AS likes_count'
             . ' FROM posts p'
             . ' INNER JOIN users u ON u.id = p.user_id'
@@ -56,5 +58,24 @@ final class Post extends Model
             ->where('id', $postId)
             ->where('thread_id', $threadId)
             ->first();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function latestByUser(int $userId, int $limit = 10): array
+    {
+        $limit = max(1, min(40, $limit));
+
+        return static::connection()->select(
+            'SELECT p.*, t.title AS thread_title, t.slug AS thread_slug, c.slug AS category_slug, c.name AS category_name'
+            . ' FROM posts p'
+            . ' INNER JOIN threads t ON t.id = p.thread_id'
+            . ' INNER JOIN categories c ON c.id = t.category_id'
+            . ' WHERE p.user_id = ?'
+            . ' ORDER BY p.created_at DESC, p.id DESC'
+            . ' LIMIT ' . $limit,
+            [$userId],
+        );
     }
 }
