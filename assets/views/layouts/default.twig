@@ -131,7 +131,11 @@
             </div>
             <div class="mt-10 flex flex-col gap-2 border-t border-zinc-200/80 pt-8 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
                 <p>© {{ 'now'|date('Y') }} {{ appName|default('App') }}. {{ trans('layout.footer_rights') }}</p>
-                <p class="text-zinc-400 dark:text-zinc-600">{{ trans('layout.footer_stack') }}</p>
+                <p class="flex items-center gap-2 text-zinc-400 dark:text-zinc-600">
+                    <span>{{ trans('layout.footer_stack') }}</span>
+                    <span aria-hidden="true">•</span>
+                    <span>{{ trans('layout.footer_render_time') }} {{ renderTimeMs|default(0) }} ms</span>
+                </p>
             </div>
             </div>
         </div>

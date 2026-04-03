@@ -17,6 +17,7 @@ return [
         'footer_explore' => 'Разгледайте',
         'footer_rights' => 'Всички права запазени.',
         'footer_stack' => 'PHP · Twig · Tailwind',
+        'footer_render_time' => 'Изобразено за',
     ],
     'nav' => [
         'forum' => 'Форум',

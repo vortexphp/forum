@@ -17,6 +17,7 @@ return [
         'footer_explore' => 'Explore',
         'footer_rights' => 'All rights reserved.',
         'footer_stack' => 'PHP · Twig · Tailwind',
+        'footer_render_time' => 'Rendered in',
     ],
     'nav' => [
         'forum' => 'Forum',

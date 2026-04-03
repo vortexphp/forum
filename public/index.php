@@ -11,6 +11,7 @@ use Vortex\Application;
 use Vortex\Container;
 use Vortex\Http\Csrf;
 use Vortex\Http\Kernel;
+use Vortex\Support\Benchmark;
 use Vortex\View\View;
 
 $projectRoot = dirname(__DIR__);
@@ -18,6 +19,7 @@ $container = null;
 
 try {
     require $projectRoot . '/vendor/autoload.php';
+    Benchmark::start('request');
 
     /** @var \Vortex\Container $container */
     $container = Application::boot($projectRoot, static function (Container $container, string $basePath): void {

@@ -12,6 +12,7 @@ use Vortex\Http\Csrf;
 use Vortex\Http\Request;
 use Vortex\Http\Response;
 use Vortex\Http\Session;
+use Vortex\Support\Benchmark;
 use Vortex\View\View;
 
 /**
@@ -30,6 +31,7 @@ final class ShareAuthUser implements Middleware
         View::share('authUser', $user);
         View::share('unreadMessagesCount', $uid === null ? 0 : PrivateMessage::unreadCountForUser($uid));
         View::share('csrfToken', Csrf::token());
+        View::share('renderTimeMs', Benchmark::has('request') ? Benchmark::elapsedMs('request', 2) : 0.0);
 
         return $next($request);
     }
