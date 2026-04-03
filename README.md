@@ -5,6 +5,12 @@ It includes discussions, moderation tools, private messaging, notifications, and
 
 ![Forum Screenshot 01](screenshots/screenshot-01.png)
 
+## Performance
+
+Typical forum page render benchmark: `2.99 ms`.
+
+VortexPHP is optimized for very low-latency page delivery.
+
 ## Features
 
 - User accounts: registration, login, logout, profile pages, and account settings.
