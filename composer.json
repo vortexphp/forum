@@ -6,7 +6,7 @@
     "require": {
         "php": "^8.2",
         "league/commonmark": "^2.8",
-        "vortexphp/framework": "^0.5"
+        "vortexphp/framework": "^0.6"
     },
     "repositories": [
         {
@@ -15,7 +15,7 @@
             "options": {
                 "symlink": true,
                 "versions": {
-                    "vortexphp/framework": "0.5.0"
+                    "vortexphp/framework": "0.6.0"
                 }
             }
         }
