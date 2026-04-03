@@ -50,6 +50,8 @@ Route::get('/users/{user}', [ProfileHandler::class, 'show'])->name('profile.show
 Route::get('/messages', [PrivateMessageHandler::class, 'inbox'], [RequireAuth::class])->name('messages.inbox');
 Route::get('/messages/{user}', [PrivateMessageHandler::class, 'conversation'], [RequireAuth::class])->name('messages.show');
 Route::post('/messages/{user}', [PrivateMessageHandler::class, 'send'], [RequireAuth::class])->name('messages.send');
+Route::get('/messages/{user}/feed', [PrivateMessageHandler::class, 'feed'], [RequireAuth::class])->name('messages.feed');
+Route::post('/messages/{user}/send-json', [PrivateMessageHandler::class, 'sendJson'], [RequireAuth::class])->name('messages.send_json');
 Route::get('/search/suggest', [SearchHandler::class, 'suggest'])->name('search.suggest');
 
 Route::get('/forum', [CategoryHandler::class, 'index'])->name('forum.index');

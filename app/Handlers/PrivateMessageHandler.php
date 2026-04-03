@@ -26,13 +26,16 @@ final class PrivateMessageHandler
         $page = max(1, (int) Request::input('page', 1));
         $perPage = 20;
         $payload = PrivateMessage::paginateInbox((int) $user->id, $page, $perPage);
+        $conversations = array_map(fn (array $row): array => $row + [
+            'last_created_ago' => $this->formatAgo((string) ($row['last_created_at'] ?? '')),
+        ], $payload['items']);
         $lastPage = max(1, (int) ceil($payload['total'] / $perPage));
-        $pagination = new Paginator($payload['items'], $payload['total'], $page, $perPage, $lastPage);
+        $pagination = new Paginator($conversations, $payload['total'], $page, $perPage, $lastPage);
         $status = Session::flash('status');
 
         return View::html('messages.inbox', [
             'title' => \trans('messages.inbox.title'),
-            'conversations' => $payload['items'],
+            'conversations' => $conversations,
             'pagination' => $pagination->withBasePath(route('messages.inbox')),
             'status' => is_string($status) ? $status : null,
             'unreadCount' => PrivateMessage::unreadCountForUser((int) $user->id),
@@ -61,7 +64,9 @@ final class PrivateMessageHandler
         $page = max(1, (int) Request::input('page', 1));
         $perPage = 25;
         $payload = PrivateMessage::paginateConversation((int) $user->id, $otherId, $page, $perPage);
-        $messages = array_reverse($payload['items']);
+        $messages = array_reverse(array_map(fn (array $row): array => $row + [
+            'created_ago' => $this->formatAgo((string) ($row['created_at'] ?? '')),
+        ], $payload['items']));
         $lastPage = max(1, (int) ceil($payload['total'] / $perPage));
         $pagination = new Paginator($messages, $payload['total'], $page, $perPage, $lastPage);
 
@@ -128,10 +133,122 @@ final class PrivateMessageHandler
         return Response::redirect(route('messages.show', ['user' => $otherId]), 302);
     }
 
+    public function feed(string $otherUserId): Response
+    {
+        $user = $this->currentUser();
+        if ($user === null) {
+            return $this->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $otherId = (int) $otherUserId;
+        if ($otherId <= 0 || $otherId === (int) $user->id) {
+            return $this->json(['ok' => false, 'message' => 'Not Found'], 404);
+        }
+
+        $other = User::find($otherId);
+        if ($other === null) {
+            return $this->json(['ok' => false, 'message' => 'Not Found'], 404);
+        }
+
+        PrivateMessage::markConversationRead((int) $user->id, $otherId);
+        $payload = PrivateMessage::paginateConversation((int) $user->id, $otherId, 1, 100);
+        $messages = array_reverse(array_map(fn (array $row): array => $row + [
+            'created_ago' => $this->formatAgo((string) ($row['created_at'] ?? '')),
+        ], $payload['items']));
+
+        return $this->json([
+            'ok' => true,
+            'items' => $messages,
+        ]);
+    }
+
+    public function sendJson(string $otherUserId): Response
+    {
+        $user = $this->currentUser();
+        if ($user === null) {
+            return $this->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $otherId = (int) $otherUserId;
+        if ($otherId <= 0 || $otherId === (int) $user->id) {
+            return $this->json(['ok' => false, 'message' => 'Not Found'], 404);
+        }
+
+        $other = User::find($otherId);
+        if ($other === null) {
+            return $this->json(['ok' => false, 'message' => 'Not Found'], 404);
+        }
+
+        if (! Csrf::validate()) {
+            return $this->json(['ok' => false, 'message' => \trans('auth.csrf_invalid')], 419);
+        }
+
+        $data = ['body' => trim((string) Request::input('body', ''))];
+        $validation = Validator::make(
+            $data,
+            ['body' => 'required|string|max:5000'],
+            ['body.required' => \trans('messages.validation.body_required')],
+        );
+        if ($validation->failed()) {
+            return $this->json([
+                'ok' => false,
+                'errors' => $validation->errors(),
+            ], 422);
+        }
+
+        PrivateMessage::create([
+            'sender_id' => (int) $user->id,
+            'recipient_id' => $otherId,
+            'body' => $data['body'],
+            'read_at' => null,
+        ]);
+
+        return $this->json(['ok' => true, 'message' => \trans('messages.sent')], 201);
+    }
+
     private function currentUser(): ?User
     {
         $uid = Session::authUserId();
 
         return $uid === null ? null : User::find($uid);
+    }
+
+    private function formatAgo(string $timestamp): string
+    {
+        $ts = strtotime($timestamp);
+        if ($ts === false) {
+            return '1m';
+        }
+
+        $diff = max(0, time() - $ts);
+        if ($diff < 60) {
+            return '1m';
+        }
+        if ($diff < 3600) {
+            return (string) floor($diff / 60) . 'm';
+        }
+        if ($diff < 86400) {
+            return (string) floor($diff / 3600) . 'h';
+        }
+        if ($diff < 2592000) {
+            return (string) floor($diff / 86400) . 'd';
+        }
+        if ($diff < 31536000) {
+            return (string) floor($diff / 2592000) . 'mo';
+        }
+
+        return (string) floor($diff / 31536000) . 'y';
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function json(array $payload, int $status = 200): Response
+    {
+        return Response::make(
+            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
+            $status,
+            ['Content-Type' => 'application/json; charset=utf-8'],
+        );
     }
 }

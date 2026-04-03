@@ -150,6 +150,9 @@ return [
             'placeholder' => 'Напишете лично съобщение...',
             'send' => 'Изпрати',
         ],
+        'time' => [
+            'ago' => 'преди :time',
+        ],
     ],
     'forum' => [
         'categories' => [

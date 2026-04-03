@@ -150,6 +150,9 @@ return [
             'placeholder' => 'Write your private message...',
             'send' => 'Send',
         ],
+        'time' => [
+            'ago' => ':time ago',
+        ],
     ],
     'forum' => [
         'categories' => [
