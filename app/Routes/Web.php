@@ -10,7 +10,6 @@ use App\Handlers\Forum\CategoryHandler;
 use App\Handlers\Forum\ModerationHandler;
 use App\Handlers\Forum\PostHandler;
 use App\Handlers\Forum\ThreadHandler;
-use App\Handlers\HomeHandler;
 use App\Middleware\GuestOnly;
 use App\Middleware\RequireAuth;
 use App\Middleware\RequireModerator;
@@ -18,17 +17,13 @@ use App\Middleware\ThrottleReplyCreate;
 use App\Middleware\ThrottleLogin;
 use App\Middleware\ThrottleRegister;
 use App\Middleware\ThrottleThreadCreate;
-use Vortex\Http\Response;
 use Vortex\Routing\Route;
 
 /**
  * HTTP route registration. Loaded automatically from `app/Routes/` (see {@see \Vortex\Routing\RouteDiscovery}).
  */
 
-Route::get('/', [HomeHandler::class, 'index'])->name('home');
-Route::get('/health', static fn (): Response => Response::json(['ok' => true]))->name('health');
-
-
+Route::get('/', [CategoryHandler::class, 'index'])->name('home');
 Route::get('/register', [RegisterHandler::class, 'show'], [GuestOnly::class])
     ->name('register.show')
     ->post('/register', [RegisterHandler::class, 'store'], [GuestOnly::class, ThrottleRegister::class])

@@ -1,5 +1,5 @@
 {
-    "name": "vortexphp-blog",
+    "name": "vortexphp-forum",
     "private": true,
     "scripts": {
         "dev": "tailwindcss -i assets/css/app.css -o public/css/app.css --watch",

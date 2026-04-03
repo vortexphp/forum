@@ -1,11 +1,10 @@
 {
-    "name": "vortexphp/blog",
+    "name": "vortexphp/forum",
     "description": "Lightweight PHP application stack (app/, engine/, config, assets)",
     "type": "project",
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "league/commonmark": "^2.8",
         "vortexphp/framework": "^0.5"
     },
     "repositories": [
