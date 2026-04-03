@@ -1,0 +1,8 @@
+/vendor
+/.phpunit.cache
+/node_modules
+.env
+storage/database.sqlite
+storage/logs/*.log
+composer-setup.php
+composer.phar

@@ -1,0 +1,24 @@
+{% extends 'layouts/default.twig' %}
+{% block content %}
+{% set profileAvatar = authUser is not null and authUser.avatar|default('') != '' ? authUser.avatar : null %}
+<div class="mx-auto max-w-2xl">
+    <div class="rounded-2xl border border-zinc-200/90 bg-white/90 p-8 shadow-lg shadow-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900/60 dark:shadow-black/20 sm:p-10">
+        <h1 class="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-4xl">{{ title }}</h1>
+
+        {% if status is not null and status != '' %}
+            <p class="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">{{ status }}</p>
+        {% endif %}
+        {% if profileAvatar is not null %}
+            <div class="mt-8">
+                <img src="{{ public_url(profileAvatar) }}" alt="" class="h-28 w-28 rounded-2xl object-cover shadow-md ring-4 ring-white dark:ring-zinc-800" width="112" height="112">
+            </div>
+        {% endif %}
+        <p class="mt-6 text-zinc-600 dark:text-zinc-400">{{ trans('account.signed_in_as') }} <span class="font-semibold text-zinc-900 dark:text-white">{{ authUser.email|default('') }}</span></p>
+        <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-500">{{ trans('account.name_label') }} <span class="font-medium text-zinc-800 dark:text-zinc-300">{{ authUser.name|default('') }}</span></p>
+
+        <p class="mt-10">
+            <a href="/account/edit" class="inline-flex rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-500">{{ trans('account.edit_profile') }}</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

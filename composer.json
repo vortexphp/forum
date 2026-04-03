@@ -1,0 +1,42 @@
+{
+    "name": "vortexphp/blog",
+    "description": "Lightweight PHP application stack (app/, engine/, config, assets)",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "league/commonmark": "^2.8",
+        "vortexphp/framework": "^0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    },
+    "suggest": {
+        "ext-openssl": "SMTP STARTTLS / ssl:// (MAIL_ENCRYPTION tls or ssl)"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "serve": "php vortex serve",
+        "doctor": "php vortex doctor",
+        "smoke": "php vortex smoke",
+        "db-check": "php vortex db-check",
+        "migrate": "php vortex migrate",
+        "migrate:down": "php vortex migrate:down",
+        "install:prod": "@composer install --no-dev --optimize-autoloader",
+        "validate-project": "composer validate --no-check-publish",
+        "test": "phpunit",
+        "build:css": "npm run build:css"
+    },
+    "bin": [
+        "vortex"
+    ]
+}

@@ -1,0 +1,92 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap");
+
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@source "../views/**/*.twig";
+@source "../views/**/*.php";
+@source "../../app/**/*.php";
+@source "../../lang/**/*.php";
+
+@theme {
+    --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* Docs preview: Highlight.js on black + Tailwind token colors (utilities win over prose) */
+@layer utilities {
+    article.docs-markdown.prose pre > code.hljs {
+        @apply block max-w-none overflow-x-auto rounded-xl border border-zinc-200/80 bg-white/90 p-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/60 p-4 text-sm leading-relaxed text-zinc-300;
+    }
+
+    article.docs-markdown.prose pre:not(:has(> code.hljs)) > code {
+        @apply block max-w-none overflow-x-auto rounded-xl border border-zinc-200/80 bg-white/90 p-4 shadow-sm dark:border-zinc-800/80 dark:bg-zinc-900/60 p-4 text-sm leading-relaxed text-zinc-300;
+    }
+}
+
+@layer components {
+
+    article.docs-markdown .hljs-comment,
+    article.docs-markdown .hljs-quote {
+        @apply text-zinc-500 italic;
+    }
+
+    article.docs-markdown .hljs-keyword,
+    article.docs-markdown .hljs-selector-tag,
+    article.docs-markdown .hljs-meta .hljs-keyword,
+    article.docs-markdown .hljs-doctag {
+        @apply font-medium text-emerald-400;
+    }
+
+    article.docs-markdown .hljs-string,
+    article.docs-markdown .hljs-meta .hljs-string,
+    article.docs-markdown .hljs-regexp {
+        @apply text-teal-300;
+    }
+
+    article.docs-markdown .hljs-number,
+    article.docs-markdown .hljs-literal {
+        @apply text-amber-300;
+    }
+
+    article.docs-markdown .hljs-title,
+    article.docs-markdown .hljs-section,
+    article.docs-markdown .hljs-name {
+        @apply font-medium text-violet-300;
+    }
+
+    article.docs-markdown .hljs-attr,
+    article.docs-markdown .hljs-attribute {
+        @apply text-sky-300;
+    }
+
+    article.docs-markdown .hljs-built_in,
+    article.docs-markdown .hljs-type {
+        @apply text-rose-300;
+    }
+
+    article.docs-markdown .hljs-variable,
+    article.docs-markdown .hljs-template-variable,
+    article.docs-markdown .hljs-symbol,
+    article.docs-markdown .hljs-bullet,
+    article.docs-markdown .hljs-link,
+    article.docs-markdown .hljs-addition {
+        @apply text-cyan-300;
+    }
+
+    article.docs-markdown .hljs-subst,
+    article.docs-markdown .hljs-formula,
+    article.docs-markdown .hljs-params {
+        @apply text-zinc-400;
+    }
+
+    article.docs-markdown .hljs-deletion,
+    article.docs-markdown .hljs-meta {
+        @apply text-zinc-500;
+    }
+}

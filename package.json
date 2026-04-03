@@ -1,0 +1,13 @@
+{
+    "name": "vortexphp-blog",
+    "private": true,
+    "scripts": {
+        "dev:css": "tailwindcss -i assets/css/app.css -o public/css/app.css --watch",
+        "build:css": "tailwindcss -i assets/css/app.css -o public/css/app.css --minify"
+    },
+    "devDependencies": {
+        "@tailwindcss/cli": "^4.1.4",
+        "@tailwindcss/typography": "^0.5.19",
+        "tailwindcss": "^4.1.4"
+    }
+}

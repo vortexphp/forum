@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Vortex\Console\ConsoleApplication;
+
+$basePath = __DIR__;
+
+require $basePath . '/vendor/autoload.php';
+
+exit(ConsoleApplication::boot($basePath)->run($argv));
