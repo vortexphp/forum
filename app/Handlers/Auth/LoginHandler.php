@@ -20,6 +20,10 @@ final class LoginHandler
     {
         $errors = Session::flash('errors');
         $status = Session::flash('status');
+        $installAdminEmail = Session::flash('install_admin_email');
+        if (is_string($installAdminEmail) && $installAdminEmail !== '') {
+            $status = 'Installation completed. Admin login: ' . $installAdminEmail;
+        }
         $old = Session::flash('old');
         $next = self::safeNext(Request::query()['next'] ?? '/');
 
@@ -70,7 +74,9 @@ final class LoginHandler
         $email = $data['email'];
         $password = $data['password'];
 
-        $user = User::findByEmail($email);
+        $user = str_contains($email, '@')
+            ? User::findByEmail($email)
+            : User::findByName($email);
         if ($user === null || ! is_string($user->password ?? null) || ! Password::verify($password, $user->password)) {
             Session::flash('errors', ['email' => \trans('auth.credentials_invalid')]);
             Session::flash('old', ['email' => $email]);

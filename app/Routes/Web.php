@@ -17,6 +17,7 @@ use App\Handlers\NotificationHandler;
 use App\Handlers\PrivateMessageHandler;
 use App\Handlers\ProfileHandler;
 use App\Handlers\SearchHandler;
+use App\Handlers\InstallHandler;
 use App\Middleware\GuestOnly;
 use App\Middleware\RequireAuth;
 use App\Middleware\RequireModerator;
@@ -31,6 +32,11 @@ use Vortex\Routing\Route;
  */
 
 Route::get('/', [CategoryHandler::class, 'index'])->name('home');
+Route::get('/install', [InstallHandler::class, 'show'])
+    ->name('install.show')
+    ->post('/install', [InstallHandler::class, 'run'])
+    ->name('install.run');
+
 Route::get('/register', [RegisterHandler::class, 'show'], [GuestOnly::class])
     ->name('register.show')
     ->post('/register', [RegisterHandler::class, 'store'], [GuestOnly::class, ThrottleRegister::class])

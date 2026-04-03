@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use App\Models\ForumSetting;
 use Closure;
 use Vortex\Config\Repository;
 use Vortex\Contracts\Middleware;
@@ -12,6 +13,7 @@ use Vortex\Http\Response;
 use Vortex\Http\Session;
 use Vortex\I18n\Translator;
 use Vortex\View\View;
+use Throwable;
 
 /**
  * Resolves locale from ?lang=, session, Accept-Language, then config; syncs {@see Translator} and view shares.
@@ -50,7 +52,22 @@ final class SetLocale implements Middleware
         View::share('locale', $locale);
         View::share('supportedLocales', $supported);
         View::share('htmlLang', $locale);
-        View::share('appName', (string) Repository::get('app.name', 'App'));
+        $appName = (string) Repository::get('app.name', 'App');
+        $appDescription = null;
+        try {
+            $dbTitle = ForumSetting::value('forum_title');
+            $dbDescription = ForumSetting::value('forum_description');
+            if ($dbTitle !== null && trim($dbTitle) !== '') {
+                $appName = trim($dbTitle);
+            }
+            if ($dbDescription !== null && trim($dbDescription) !== '') {
+                $appDescription = trim($dbDescription);
+            }
+        } catch (Throwable) {
+            // Fresh installs may not have forum_settings yet.
+        }
+        View::share('appName', $appName);
+        View::share('appDescription', $appDescription);
 
         return $next($request);
     }

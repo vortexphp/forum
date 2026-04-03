@@ -20,6 +20,7 @@ return [
     'middleware' => [
         App\Middleware\TrimTrailingSlash::class,
         App\Middleware\SetLocale::class,
+        App\Middleware\RequireInstalled::class,
         App\Middleware\ShareAuthUser::class,
     ],
 ];

@@ -112,6 +112,18 @@ final class User extends Model
         return static::query()->where('email', $email)->first();
     }
 
+    public static function findByName(string $name): ?self
+    {
+        $name = trim($name);
+        if ($name === '') {
+            return null;
+        }
+
+        return static::query()
+            ->whereRaw('LOWER(name) = ?', [strtolower($name)])
+            ->first();
+    }
+
     public function isModerator(): bool
     {
         return strtolower((string) ($this->role ?? 'member')) === 'moderator';
