@@ -11,6 +11,22 @@ final class Tag extends Model
     /** @var list<string> */
     protected static array $fillable = ['name', 'slug'];
 
+    /**
+     * @return list<Thread>
+     */
+    public function threads(): array
+    {
+        /** @var list<Thread> $threads */
+        $threads = $this->belongsToMany(
+            Thread::class,
+            'thread_tags',
+            'tag_id',
+            'thread_id',
+        );
+
+        return $threads;
+    }
+
     public static function findBySlug(string $slug): ?self
     {
         return static::query()->where('slug', strtolower(trim($slug)))->first();
@@ -21,12 +37,19 @@ final class Tag extends Model
      */
     public static function forThread(int $threadId): array
     {
-        return static::connection()->select(
-            'SELECT t.* FROM tags t'
-            . ' INNER JOIN thread_tags tt ON tt.tag_id = t.id'
-            . ' WHERE tt.thread_id = ?'
-            . ' ORDER BY t.name ASC',
-            [$threadId],
-        );
+        $thread = Thread::find($threadId);
+        if ($thread === null) {
+            return [];
+        }
+
+        $tags = $thread->relatedTags();
+        usort($tags, static fn (Tag $left, Tag $right): int => strcmp((string) ($left->name ?? ''), (string) ($right->name ?? '')));
+
+        $out = [];
+        foreach ($tags as $tag) {
+            $out[] = get_object_vars($tag);
+        }
+
+        return $out;
     }
 }

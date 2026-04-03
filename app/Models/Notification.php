@@ -11,6 +11,22 @@ final class Notification extends Model
     /** @var list<string> */
     protected static array $fillable = ['user_id', 'actor_id', 'type', 'title', 'body', 'url', 'read_at'];
 
+    public function user(): ?User
+    {
+        /** @var User|null $user */
+        $user = $this->belongsTo(User::class, 'user_id');
+
+        return $user;
+    }
+
+    public function actor(): ?User
+    {
+        /** @var User|null $actor */
+        $actor = $this->belongsTo(User::class, 'actor_id');
+
+        return $actor;
+    }
+
     public static function createForUser(
         int $userId,
         ?int $actorId,
@@ -32,12 +48,10 @@ final class Notification extends Model
 
     public static function unreadCountForUser(int $userId): int
     {
-        $row = static::connection()->selectOne(
-            'SELECT COUNT(*) AS n FROM notifications WHERE user_id = ? AND read_at IS NULL',
-            [$userId],
-        );
-
-        return (int) ($row['n'] ?? 0);
+        return static::query()
+            ->where('user_id', $userId)
+            ->whereNull('read_at')
+            ->count();
     }
 
     /**
@@ -49,21 +63,21 @@ final class Notification extends Model
         $perPage = max(1, min(100, $perPage));
         $offset = ($page - 1) * $perPage;
 
-        $count = static::connection()->selectOne(
-            'SELECT COUNT(*) AS n FROM notifications WHERE user_id = ?',
-            [$userId],
-        );
-        $total = (int) ($count['n'] ?? 0);
+        $total = static::query()->where('user_id', $userId)->count();
 
-        $items = static::connection()->select(
-            'SELECT n.*, u.name AS actor_name, u.avatar AS actor_avatar'
-            . ' FROM notifications n'
-            . ' LEFT JOIN users u ON u.id = n.actor_id'
-            . ' WHERE n.user_id = ?'
-            . ' ORDER BY n.created_at DESC, n.id DESC'
-            . ' LIMIT ' . $perPage . ' OFFSET ' . $offset,
-            [$userId],
-        );
+        $items = static::query()
+            ->select([
+                'notifications.*',
+                'u.name AS actor_name',
+                'u.avatar AS actor_avatar',
+            ])
+            ->leftJoin('users AS u', 'u.id', '=', 'notifications.actor_id')
+            ->where('notifications.user_id', $userId)
+            ->orderBy('notifications.created_at', 'DESC')
+            ->orderBy('notifications.id', 'DESC')
+            ->offset($offset)
+            ->limit($perPage)
+            ->getRaw();
 
         return ['items' => $items, 'total' => $total];
     }
@@ -71,11 +85,12 @@ final class Notification extends Model
     public static function markAllReadForUser(int $userId): void
     {
         $now = gmdate('Y-m-d H:i:s');
-        static::connection()->execute(
-            'UPDATE notifications'
-            . ' SET read_at = ?, updated_at = ?'
-            . ' WHERE user_id = ? AND read_at IS NULL',
-            [$now, $now, $userId],
-        );
+        static::query()
+            ->where('user_id', $userId)
+            ->whereNull('read_at')
+            ->update([
+                'read_at' => $now,
+                'updated_at' => $now,
+            ]);
     }
 }

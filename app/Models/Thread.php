@@ -21,6 +21,76 @@ final class Thread extends Model
         'last_post_at',
     ];
 
+    public function category(): ?Category
+    {
+        /** @var Category|null $category */
+        $category = $this->belongsTo(Category::class, 'category_id');
+
+        return $category;
+    }
+
+    public function author(): ?User
+    {
+        /** @var User|null $author */
+        $author = $this->belongsTo(User::class, 'user_id');
+
+        return $author;
+    }
+
+    /**
+     * @return list<Post>
+     */
+    public function posts(): array
+    {
+        /** @var list<Post> $posts */
+        $posts = $this->hasMany(Post::class, 'thread_id');
+
+        return $posts;
+    }
+
+    /**
+     * @return list<Tag>
+     */
+    public function relatedTags(): array
+    {
+        /** @var list<Tag> $tags */
+        $tags = $this->belongsToMany(
+            Tag::class,
+            'thread_tags',
+            'thread_id',
+            'tag_id',
+        );
+
+        return $tags;
+    }
+
+    /**
+     * @return list<ThreadBookmark>
+     */
+    public function bookmarks(): array
+    {
+        /** @var list<ThreadBookmark> $bookmarks */
+        $bookmarks = $this->hasMany(ThreadBookmark::class, 'thread_id');
+
+        return $bookmarks;
+    }
+
+    /**
+     * @return list<ContentFlag>
+     */
+    public function flags(): array
+    {
+        $all = $this->hasMany(ContentFlag::class, 'target_id');
+        $filtered = [];
+        foreach ($all as $flag) {
+            if ((string) ($flag->target_type ?? '') === 'thread') {
+                $filtered[] = $flag;
+            }
+        }
+
+        return $filtered;
+    }
+
     /**
      * @return list<string>
      */

@@ -8,8 +8,21 @@ use Vortex\Database\Model;
 
 final class Category extends Model
 {
+    protected static ?string $table = 'categories';
+
     /** @var list<string> */
     protected static array $fillable = ['name', 'slug', 'icon', 'color', 'description', 'sort_order', 'is_locked'];
+
+    /**
+     * @return list<Thread>
+     */
+    public function threads(): array
+    {
+        /** @var list<Thread> $threads */
+        $threads = $this->hasMany(Thread::class, 'category_id');
+
+        return $threads;
+    }
 
     /**
      * @return array{items: list<array<string, mixed>>, total: int}
@@ -20,20 +33,22 @@ final class Category extends Model
         $perPage = max(1, min(100, $perPage));
         $offset = ($page - 1) * $perPage;
 
-        $count = static::connection()->selectOne('SELECT COUNT(*) AS n FROM categories');
-        $total = (int) ($count['n'] ?? 0);
+        $total = static::query()->count();
 
-        $items = static::connection()->select(
-            'SELECT c.*,'
-            . ' COUNT(DISTINCT t.id) AS thread_total,'
-            . ' COALESCE(SUM(t.reply_count), 0) AS reply_total,'
-            . ' MAX(t.last_post_at) AS last_post_at'
-            . ' FROM categories c'
-            . ' LEFT JOIN threads t ON t.category_id = c.id'
-            . ' GROUP BY c.id'
-            . ' ORDER BY c.sort_order ASC, c.name ASC'
-            . ' LIMIT ' . $perPage . ' OFFSET ' . $offset
-        );
+        $items = static::query()
+            ->select([
+                'categories.*',
+                'COUNT(DISTINCT t.id) AS thread_total',
+                'COALESCE(SUM(t.reply_count), 0) AS reply_total',
+                'MAX(t.last_post_at) AS last_post_at',
+            ])
+            ->leftJoin('threads AS t', 't.category_id', '=', 'categories.id')
+            ->groupBy('categories.id')
+            ->orderBy('categories.sort_order', 'ASC')
+            ->orderBy('categories.name', 'ASC')
+            ->offset($offset)
+            ->limit($perPage)
+            ->getRaw();
 
         return ['items' => $items, 'total' => $total];
     }

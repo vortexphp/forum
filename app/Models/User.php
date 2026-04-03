@@ -12,6 +12,99 @@ final class User extends Model
     /** @var list<string> */
     protected static array $fillable = ['name', 'email', 'password', 'avatar', 'role'];
 
+    /**
+     * @return list<Thread>
+     */
+    public function threads(): array
+    {
+        /** @var list<Thread> $threads */
+        $threads = $this->hasMany(Thread::class, 'user_id');
+
+        return $threads;
+    }
+
+    /**
+     * @return list<Post>
+     */
+    public function posts(): array
+    {
+        /** @var list<Post> $posts */
+        $posts = $this->hasMany(Post::class, 'user_id');
+
+        return $posts;
+    }
+
+    /**
+     * @return list<UserBadge>
+     */
+    public function badgeAwards(): array
+    {
+        /** @var list<UserBadge> $awards */
+        $awards = $this->hasMany(UserBadge::class, 'user_id');
+
+        return $awards;
+    }
+
+    /**
+     * @return list<Badge>
+     */
+    public function badges(): array
+    {
+        /** @var list<Badge> $badges */
+        $badges = $this->belongsToMany(
+            Badge::class,
+            'user_badges',
+            'user_id',
+            'badge_id',
+        );
+
+        return $badges;
+    }
+
+    /**
+     * @return list<ThreadBookmark>
+     */
+    public function bookmarks(): array
+    {
+        /** @var list<ThreadBookmark> $bookmarks */
+        $bookmarks = $this->hasMany(ThreadBookmark::class, 'user_id');
+
+        return $bookmarks;
+    }
+
+    /**
+     * @return list<PostLike>
+     */
+    public function likes(): array
+    {
+        /** @var list<PostLike> $likes */
+        $likes = $this->hasMany(PostLike::class, 'user_id');
+
+        return $likes;
+    }
+
+    /**
+     * @return list<Notification>
+     */
+    public function notifications(): array
+    {
+        /** @var list<Notification> $notifications */
+        $notifications = $this->hasMany(Notification::class, 'user_id');
+
+        return $notifications;
+    }
+
+    /**
+     * @return list<Notification>
+     */
+    public function actorNotifications(): array
+    {
+        /** @var list<Notification> $notifications */
+        $notifications = $this->hasMany(Notification::class, 'actor_id');
+
+        return $notifications;
+    }
+
     public static function findByEmail(string $email): ?self
     {
         $email = strtolower(trim($email));
@@ -35,26 +128,45 @@ final class User extends Model
      */
     public static function publicStats(int $userId): array
     {
-        $threads = static::connection()->selectOne('SELECT COUNT(*) AS n FROM threads WHERE user_id = ?', [$userId]);
-        $posts = static::connection()->selectOne('SELECT COUNT(*) AS n FROM posts WHERE user_id = ?', [$userId]);
-        $likesReceived = static::connection()->selectOne(
-            'SELECT COUNT(*) AS n FROM post_likes pl INNER JOIN posts p ON p.id = pl.post_id WHERE p.user_id = ?',
-            [$userId],
+        $threadsCount = Thread::query()->where('user_id', $userId)->count();
+        $postsCount = Post::query()->where('user_id', $userId)->count();
+
+        /** @var list<int> $threadIds */
+        $threadIds = array_map(
+            static fn (mixed $id): int => (int) $id,
+            Thread::query()->where('user_id', $userId)->pluck('id'),
         );
-        $likesGiven = static::connection()->selectOne('SELECT COUNT(*) AS n FROM post_likes WHERE user_id = ?', [$userId]);
-        $flagsReceived = static::connection()->selectOne(
-            'SELECT COUNT(*) AS n FROM content_flags cf WHERE '
-            . "(cf.target_type = 'thread' AND cf.target_id IN (SELECT t.id FROM threads t WHERE t.user_id = ?))"
-            . " OR (cf.target_type = 'post' AND cf.target_id IN (SELECT p.id FROM posts p WHERE p.user_id = ?))",
-            [$userId, $userId],
+        /** @var list<int> $postIds */
+        $postIds = array_map(
+            static fn (mixed $id): int => (int) $id,
+            Post::query()->where('user_id', $userId)->pluck('id'),
         );
 
+        $likesReceived = $postIds === []
+            ? 0
+            : PostLike::query()->whereIn('post_id', $postIds)->count();
+
+        $likesGiven = PostLike::query()->where('user_id', $userId)->count();
+
+        $threadFlags = $threadIds === []
+            ? 0
+            : ContentFlag::query()
+                ->where('target_type', 'thread')
+                ->whereIn('target_id', $threadIds)
+                ->count();
+        $postFlags = $postIds === []
+            ? 0
+            : ContentFlag::query()
+                ->where('target_type', 'post')
+                ->whereIn('target_id', $postIds)
+                ->count();
+
         return [
-            'threads_count' => (int) ($threads['n'] ?? 0),
-            'posts_count' => (int) ($posts['n'] ?? 0),
-            'likes_received' => (int) ($likesReceived['n'] ?? 0),
-            'likes_given' => (int) ($likesGiven['n'] ?? 0),
-            'flags_received' => (int) ($flagsReceived['n'] ?? 0),
+            'threads_count' => $threadsCount,
+            'posts_count' => $postsCount,
+            'likes_received' => $likesReceived,
+            'likes_given' => $likesGiven,
+            'flags_received' => $threadFlags + $postFlags,
         ];
     }
 
@@ -65,17 +177,55 @@ final class User extends Model
     {
         ForumBadgeService::recalculateForUser((int) ($this->id ?? 0));
 
-        $rows = static::connection()->select(
-            'SELECT b.badge_key FROM user_badges ub'
-            . ' INNER JOIN badges b ON b.id = ub.badge_id'
-            . ' WHERE ub.user_id = ?'
-            . ' ORDER BY b.sort_order ASC, ub.awarded_at ASC',
-            [(int) ($this->id ?? 0)],
-        );
+        $userId = (int) ($this->id ?? 0);
+        $awards = UserBadge::query()
+            ->where('user_id', $userId)
+            ->orderBy('awarded_at', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get();
+
+        $badgeIds = [];
+        foreach ($awards as $award) {
+            $badgeId = (int) ($award->badge_id ?? 0);
+            if ($badgeId > 0) {
+                $badgeIds[] = $badgeId;
+            }
+        }
+
+        $badgesById = [];
+        if ($badgeIds !== []) {
+            $badges = Badge::query()->whereIn('id', $badgeIds)->get();
+            foreach ($badges as $badge) {
+                $badgeId = (int) ($badge->id ?? 0);
+                if ($badgeId > 0) {
+                    $badgesById[$badgeId] = $badge;
+                }
+            }
+        }
+
+        usort($awards, static function (Model $left, Model $right) use ($badgesById): int {
+            $leftBadge = $badgesById[(int) ($left->badge_id ?? 0)] ?? null;
+            $rightBadge = $badgesById[(int) ($right->badge_id ?? 0)] ?? null;
+
+            $leftSort = (int) ($leftBadge?->sort_order ?? 1000);
+            $rightSort = (int) ($rightBadge?->sort_order ?? 1000);
+            if ($leftSort !== $rightSort) {
+                return $leftSort <=> $rightSort;
+            }
+
+            $leftAwardedAt = (string) ($left->awarded_at ?? '');
+            $rightAwardedAt = (string) ($right->awarded_at ?? '');
+            if ($leftAwardedAt !== $rightAwardedAt) {
+                return $leftAwardedAt <=> $rightAwardedAt;
+            }
+
+            return (int) ($left->id ?? 0) <=> (int) ($right->id ?? 0);
+        });
 
         $badges = [];
-        foreach ($rows as $row) {
-            $key = (string) ($row['badge_key'] ?? '');
+        foreach ($awards as $award) {
+            $badge = $badgesById[(int) ($award->badge_id ?? 0)] ?? null;
+            $key = (string) ($badge?->badge_key ?? '');
             if ($key !== '') {
                 $badges[] = $key;
             }

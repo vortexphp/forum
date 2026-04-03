@@ -11,6 +11,22 @@ final class PrivateMessage extends Model
     /** @var list<string> */
     protected static array $fillable = ['sender_id', 'recipient_id', 'body', 'read_at'];
 
+    public function sender(): ?User
+    {
+        /** @var User|null $sender */
+        $sender = $this->belongsTo(User::class, 'sender_id');
+
+        return $sender;
+    }
+
+    public function recipient(): ?User
+    {
+        /** @var User|null $recipient */
+        $recipient = $this->belongsTo(User::class, 'recipient_id');
+
+        return $recipient;
+    }
+
     /**
      * @return array{items: list<array<string, mixed>>, total: int}
      */

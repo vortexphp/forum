@@ -11,6 +11,49 @@ final class Post extends Model
     /** @var list<string> */
     protected static array $fillable = ['thread_id', 'user_id', 'body', 'is_edited', 'edited_at'];
 
+    public function thread(): ?Thread
+    {
+        /** @var Thread|null $thread */
+        $thread = $this->belongsTo(Thread::class, 'thread_id');
+
+        return $thread;
+    }
+
+    public function author(): ?User
+    {
+        /** @var User|null $author */
+        $author = $this->belongsTo(User::class, 'user_id');
+
+        return $author;
+    }
+
+    /**
+     * @return list<PostLike>
+     */
+    public function likes(): array
+    {
+        /** @var list<PostLike> $likes */
+        $likes = $this->hasMany(PostLike::class, 'post_id');
+
+        return $likes;
+    }
+
+    /**
+     * @return list<ContentFlag>
+     */
+    public function flags(): array
+    {
+        $all = $this->hasMany(ContentFlag::class, 'target_id');
+        $filtered = [];
+        foreach ($all as $flag) {
+            if ((string) ($flag->target_type ?? '') === 'post') {
+                $filtered[] = $flag;
+            }
+        }
+
+        return $filtered;
+    }
+
     /**
      * @return list<string>
      */

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use PDOException;
 use Vortex\Database\Model;
 
 final class PostLike extends Model
@@ -11,25 +12,48 @@ final class PostLike extends Model
     /** @var list<string> */
     protected static array $fillable = ['post_id', 'user_id'];
 
+    public function post(): ?Post
+    {
+        /** @var Post|null $post */
+        $post = $this->belongsTo(Post::class, 'post_id');
+
+        return $post;
+    }
+
+    public function user(): ?User
+    {
+        /** @var User|null $user */
+        $user = $this->belongsTo(User::class, 'user_id');
+
+        return $user;
+    }
+
     public static function toggle(int $postId, int $userId): bool
     {
-        $existing = static::query()->where('post_id', $postId)->where('user_id', $userId)->first();
-        if ($existing !== null) {
-            static::deleteId((int) $existing->id);
-
+        $deleted = static::connection()->execute(
+            'DELETE FROM post_likes WHERE post_id = ? AND user_id = ?',
+            [$postId, $userId],
+        );
+        if ($deleted > 0) {
             return false;
         }
 
-        static::create(['post_id' => $postId, 'user_id' => $userId]);
+        try {
+            static::create(['post_id' => $postId, 'user_id' => $userId]);
+        } catch (PDOException $e) {
+            // If another request inserted concurrently, treat current state as liked.
+            if (static::query()->where('post_id', $postId)->where('user_id', $userId)->exists()) {
+                return true;
+            }
+            throw $e;
+        }
 
         return true;
     }
 
     public static function countForPost(int $postId): int
     {
-        $row = static::connection()->selectOne('SELECT COUNT(*) AS n FROM post_likes WHERE post_id = ?', [$postId]);
-
-        return (int) ($row['n'] ?? 0);
+        return static::query()->where('post_id', $postId)->count();
     }
 
     /**
@@ -42,11 +66,11 @@ final class PostLike extends Model
             return [];
         }
 
-        $in = implode(', ', array_fill(0, count($postIds), '?'));
-        $rows = static::connection()->select(
-            'SELECT post_id FROM post_likes WHERE user_id = ? AND post_id IN (' . $in . ')',
-            array_merge([$userId], $postIds),
-        );
+        $rows = static::query()
+            ->select(['post_id'])
+            ->where('user_id', $userId)
+            ->whereIn('post_id', $postIds)
+            ->getRaw();
         $out = [];
         foreach ($rows as $row) {
             $out[(int) ($row['post_id'] ?? 0)] = true;
