@@ -1,6 +1,6 @@
 {
     "name": "vortexphp/forum",
-    "description": "Lightweight PHP application stack (app/, engine/, config, assets)",
+    "description": "Community forum application built with VortexPHP framework",
     "type": "project",
     "license": "MIT",
     "require": {
