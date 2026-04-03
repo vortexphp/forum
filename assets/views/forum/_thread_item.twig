@@ -31,7 +31,7 @@
                 {% if thread.last_comment_author_avatar is defined and thread.last_comment_author_avatar %}
                     <img src="{{ public_url(thread.last_comment_author_avatar) }}" alt="{{ thread.last_comment_author_name|default('User') }}" class="h-4 w-4 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700" width="16" height="16">
                 {% elseif thread.last_comment_author_name is defined and thread.last_comment_author_name %}
-                    <span class="inline-flex h-4 w-4 items-center justify-center rounded-full bg-zinc-200 text-[9px] font-semibold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">{{ thread.last_comment_author_name|slice(0, 1)|upper }}</span>
+                    <span class="inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-semibold text-white" style="background-color: {{ thread.last_comment_author_name|avatar_color }}">{{ thread.last_comment_author_name|slice(0, 1)|upper }}</span>
                 {% endif %}
                 <span>{{ trans('forum.thread.last_post') }} {{ thread.last_post_at }}</span>
                 {% if thread.last_comment_author_primary_badge is defined and thread.last_comment_author_primary_badge %}

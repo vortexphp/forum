@@ -17,7 +17,7 @@
                             <img src="{{ public_url(thread.author_avatar) }}" alt="{{ thread.author_name }}" class="h-6 w-6 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-700" width="24" height="24">
                         </a>
                     {% else %}
-                        <a href="{{ route('profile.show', { user: thread.user_id }) }}" class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-semibold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">{{ thread.author_name|slice(0, 1)|upper }}</a>
+                        <a href="{{ route('profile.show', { user: thread.user_id }) }}" class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold text-white" style="background-color: {{ thread.author_name|avatar_color }}">{{ thread.author_name|slice(0, 1)|upper }}</a>
                     {% endif %}
                     <span>{{ trans('forum.thread.by') }} <a href="{{ route('profile.show', { user: thread.user_id }) }}" class="font-semibold hover:text-emerald-600 dark:hover:text-emerald-400">{{ thread.author_name }}</a> · {{ thread.created_at }}</span>
                     {% if thread.author_primary_badge is defined and thread.author_primary_badge %}

@@ -14,7 +14,7 @@
                 {% if profileUser.avatar is defined and profileUser.avatar %}
                     <img src="{{ public_url(profileUser.avatar) }}" alt="{{ profileUser.name }}" class="h-20 w-20 rounded-2xl object-cover ring-4 ring-white shadow-md dark:ring-zinc-800" width="80" height="80">
                 {% else %}
-                    <span class="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-zinc-200 text-2xl font-semibold text-zinc-700 ring-4 ring-white shadow-md dark:bg-zinc-700 dark:text-zinc-200 dark:ring-zinc-800">{{ profileUser.name|slice(0,1)|upper }}</span>
+                    <span class="inline-flex h-20 w-20 items-center justify-center rounded-2xl text-2xl font-semibold text-white ring-4 ring-white shadow-md dark:ring-zinc-800" style="background-color: {{ profileUser.name|avatar_color }}">{{ profileUser.name|slice(0,1)|upper }}</span>
                 {% endif %}
                 <div class="min-w-0">
                     <p class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300">

@@ -10,6 +10,9 @@ return [
     'name' => Env::get('APP_NAME', 'Vortex'),
     'debug' => filter_var(Env::get('APP_DEBUG', '0'), FILTER_VALIDATE_BOOLEAN),
     'url' => Env::get('APP_URL', 'http://localhost'),
+    'twig_extensions' => [
+        App\View\Twig\ForumTwigExtension::class,
+    ],
     'csp_header' => Env::get('CSP_HEADER', ''),
     'locale' => Env::get('APP_LOCALE', 'en'),
     'fallback_locale' => Env::get('APP_FALLBACK_LOCALE', 'en'),

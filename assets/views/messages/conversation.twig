@@ -44,7 +44,7 @@
                                         <img src="{{ public_url(ownAvatar) }}" alt="{{ trans('messages.conversation.you') }}" class="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-200 transition hover:ring-emerald-400 dark:ring-zinc-700 dark:hover:ring-emerald-500" width="40" height="40">
                                     </a>
                                 {% else %}
-                                    <a href="{{ route('profile.show', { user: authUser.id }) }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">{{ trans('messages.conversation.you')|slice(0,1)|upper }}</a>
+                                    <a href="{{ route('profile.show', { user: authUser.id }) }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white" style="background-color: {{ authUser.name|default(trans('messages.conversation.you'))|avatar_color }}">{{ authUser.name|default(trans('messages.conversation.you'))|slice(0,1)|upper }}</a>
                                 {% endif %}
                             {% else %}
                                 {% if message.sender_avatar is defined and message.sender_avatar %}
@@ -52,7 +52,7 @@
                                         <img src="{{ public_url(message.sender_avatar) }}" alt="{{ message.sender_name }}" class="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-200 transition hover:ring-emerald-400 dark:ring-zinc-700 dark:hover:ring-emerald-500" width="40" height="40">
                                     </a>
                                 {% else %}
-                                    <a href="{{ route('profile.show', { user: message.sender_id }) }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">{{ message.sender_name|slice(0,1)|upper }}</a>
+                                    <a href="{{ route('profile.show', { user: message.sender_id }) }}" class="inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white" style="background-color: {{ message.sender_name|avatar_color }}">{{ message.sender_name|slice(0,1)|upper }}</a>
                                 {% endif %}
                             {% endif %}
                             <div class="min-w-0 flex-1 rounded-2xl border px-5 py-4 {{ own ? 'border-emerald-300 bg-emerald-50/80 dark:border-emerald-900/40 dark:bg-emerald-900/15' : 'border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/60' }}">

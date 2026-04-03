@@ -56,7 +56,7 @@
                                 {% if navAvatar != '' %}
                                     <img src="{{ public_url(navAvatar) }}" alt="" class="h-7 w-7 rounded-full object-cover ring-2 ring-white dark:ring-zinc-800" width="28" height="28">
                                 {% else %}
-                                    <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-zinc-200 text-[11px] font-semibold text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200">{{ authUser.name|default('U')|slice(0, 1)|upper }}</span>
+                                    <span class="inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold text-white" style="background-color: {{ authUser.name|default('U')|avatar_color }}">{{ authUser.name|default('U')|slice(0, 1)|upper }}</span>
                                 {% endif %}
                                 <span>{{ trans('nav.account') }}</span>
                                 {% if unreadMessagesCount|default(0) > 0 %}

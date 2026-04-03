@@ -29,6 +29,26 @@
       .replaceAll('>', '&gt;')
       .replaceAll('"', '&quot;')
       .replaceAll("'", '&#039;');
+  const avatarPalette = [
+    '#0ea5e9',
+    '#14b8a6',
+    '#22c55e',
+    '#84cc16',
+    '#eab308',
+    '#f97316',
+    '#ef4444',
+    '#ec4899',
+    '#a855f7',
+    '#6366f1',
+    '#3b82f6',
+    '#10b981',
+  ];
+  const avatarColor = (name) => {
+    const normalized = String(name || '').trim();
+    const first = (normalized.slice(0, 1) || 'U').toUpperCase();
+    const code = first.charCodeAt(0) || 0;
+    return avatarPalette[code % avatarPalette.length];
+  };
 
   const ago = (value) => agoTemplate.replace(':time', String(value || '1m'));
   const isNearBottom = () => list.scrollHeight - list.scrollTop - list.clientHeight < 120;
@@ -59,8 +79,10 @@
         const senderId = Number(message.sender_id || 0);
         const own = senderId === currentUserId;
         const senderName = own ? youLabel : message.sender_name || 'User';
+        const avatarSeedName = own ? message.sender_name || youLabel : senderName;
         const avatar = message.sender_avatar || '';
-        const initial = esc(String(senderName).slice(0, 1).toUpperCase() || 'U');
+        const initial = esc(String(avatarSeedName).slice(0, 1).toUpperCase() || 'U');
+        const avatarStyle = ' style="background-color: ' + esc(avatarColor(avatarSeedName)) + '"';
         const profileHrefValue = esc(profileHref(senderId > 0 ? senderId : currentUserId));
         const avatarHtml = avatar
           ? '<a href="' +
@@ -72,7 +94,9 @@
             '" class="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-200 transition hover:ring-emerald-400 dark:ring-zinc-700 dark:hover:ring-emerald-500" width="40" height="40"></a>'
           : '<a href="' +
             profileHrefValue +
-            '" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600">' +
+            '" class="inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white"' +
+            avatarStyle +
+            '>' +
             initial +
             '</a>';
         const bubbleClass = own
