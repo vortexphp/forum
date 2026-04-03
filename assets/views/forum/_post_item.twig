@@ -22,9 +22,15 @@
         </div>
         <div class="flex flex-wrap items-center gap-2 text-xs">
             {% if authUser is not null %}
-                <form method="post" action="{{ route('forum.post.like', { category: category.slug, thread: thread.slug, post: post.id }) }}">
+                <form method="post" action="{{ route('forum.post.like', { category: category.slug, thread: thread.slug, post: post.id }) }}" data-like-form>
                     <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
-                    <button type="submit" class="rounded border px-2 py-1 {{ post.liked_by_auth_user ? 'border-emerald-500 text-emerald-700 dark:border-emerald-500 dark:text-emerald-300' : 'border-zinc-300 text-zinc-700 dark:border-zinc-700 dark:text-zinc-300' }}">
+                    <button
+                        type="submit"
+                        data-like-button
+                        data-liked="{{ post.liked_by_auth_user ? '1' : '0' }}"
+                        data-label-like="{{ trans('forum.likes.button') }}"
+                        class="rounded border px-2 py-1 {{ post.liked_by_auth_user ? 'border-emerald-500 text-emerald-700 dark:border-emerald-500 dark:text-emerald-300' : 'border-zinc-300 text-zinc-700 dark:border-zinc-700 dark:text-zinc-300' }}"
+                    >
                         {{ trans('forum.likes.button') }} ({{ post.likes_count|default(0) }})
                     </button>
                 </form>
