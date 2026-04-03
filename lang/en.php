@@ -13,6 +13,8 @@ return [
         'tagline_short' => 'Modern PHP stack',
         'nav_label' => 'Main navigation',
         'language' => 'Language',
+        'confirm' => 'Confirm',
+        'cancel' => 'Cancel',
         'footer_about' => 'A compact foundation for sites that need routing, Twig views, auth, and a small CLI—without drowning in framework ceremony.',
         'footer_explore' => 'Explore',
         'footer_rights' => 'All rights reserved.',
@@ -22,10 +24,21 @@ return [
     'nav' => [
         'forum' => 'Forum',
         'messages' => 'Messages',
+        'bookmarks' => 'Bookmarks',
+        'notifications' => 'Notifications',
         'account' => 'Account',
         'sign_out' => 'Sign out',
         'sign_in' => 'Sign in',
         'register' => 'Register',
+    ],
+    'notifications' => [
+        'title' => 'Notifications',
+        'subtitle' => 'Recent activity related to your content.',
+        'empty' => 'No notifications yet.',
+        'events' => [
+            'post_liked' => ':user liked your post.',
+            'thread_replied' => ':user replied in your thread ":thread".',
+        ],
     ],
     'auth' => [
         'register' => [
@@ -199,6 +212,15 @@ return [
             'empty' => 'No replies yet.',
             'sign_in_prompt' => 'You must sign in to reply.',
         ],
+        'bookmarks' => [
+            'title' => 'Bookmarked threads',
+            'subtitle' => 'Quick access to threads you saved for later.',
+            'add_button' => 'Bookmark',
+            'remove_button' => 'Bookmarked',
+            'added' => 'Thread bookmarked.',
+            'removed' => 'Bookmark removed.',
+            'empty' => 'No bookmarked threads yet.',
+        ],
         'post' => [
             'edit' => 'Edit',
             'edited' => 'Edited:',
@@ -224,6 +246,8 @@ return [
             'unpinned' => 'Thread unpinned.',
             'thread_deleted' => 'Thread deleted.',
             'post_deleted' => 'Post deleted.',
+            'confirm_delete_thread' => 'Delete this thread permanently? This action cannot be undone.',
+            'confirm_delete_post' => 'Delete this post permanently? This action cannot be undone.',
         ],
         'likes' => [
             'button' => 'Like',

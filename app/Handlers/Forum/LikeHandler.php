@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Handlers\Forum;
 
 use App\Models\Category;
+use App\Models\Notification;
 use App\Models\Post;
 use App\Models\PostLike;
 use App\Models\Thread;
+use App\Models\User;
 use App\Support\ForumBadgeService;
 use Vortex\Http\Csrf;
 use Vortex\Http\Response;
@@ -54,6 +56,19 @@ final class LikeHandler
         $liked = PostLike::toggle((int) $post->id, (int) $uid);
         ForumBadgeService::recalculateForUser((int) $uid);
         ForumBadgeService::recalculateForUser((int) $post->user_id);
+        if ($liked && (int) $post->user_id !== (int) $uid) {
+            $actor = User::find((int) $uid);
+            $actorName = (string) ($actor?->name ?? 'Someone');
+            Notification::createForUser(
+                (int) $post->user_id,
+                (int) $uid,
+                'post_liked',
+                \trans('notifications.events.post_liked', ['user' => $actorName]),
+                (string) ($thread->title ?? ''),
+                route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]) . '#comments',
+            );
+        }
+
         $message = $liked ? \trans('forum.likes.added') : \trans('forum.likes.removed');
         $likesCount = PostLike::countForPost((int) $post->id);
 

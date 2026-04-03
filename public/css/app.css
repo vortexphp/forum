@@ -50,6 +50,7 @@
     --color-rose-50: oklch(96.9% 0.015 12.422);
     --color-rose-300: oklch(81% 0.117 11.638);
     --color-rose-400: oklch(71.2% 0.194 13.428);
+    --color-rose-500: oklch(64.5% 0.246 16.439);
     --color-rose-600: oklch(58.6% 0.253 17.585);
     --color-rose-700: oklch(51.4% 0.222 16.935);
     --color-rose-900: oklch(41% 0.159 10.272);
@@ -342,6 +343,9 @@
   }
   .z-50 {
     z-index: 50;
+  }
+  .z-\[100\] {
+    z-index: 100;
   }
   .container {
     width: 100%;
@@ -1254,6 +1258,9 @@
   .bg-rose-50 {
     background-color: var(--color-rose-50);
   }
+  .bg-rose-600 {
+    background-color: var(--color-rose-600);
+  }
   .bg-sky-100 {
     background-color: var(--color-sky-100);
   }
@@ -1316,6 +1323,12 @@
   }
   .bg-zinc-950 {
     background-color: var(--color-zinc-950);
+  }
+  .bg-zinc-950\/50 {
+    background-color: color-mix(in srgb, oklch(14.1% 0.005 285.823) 50%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-zinc-950) 50%, transparent);
+    }
   }
   .bg-gradient-to-br {
     --tw-gradient-position: to bottom right in oklab;
@@ -1813,6 +1826,13 @@
       }
     }
   }
+  .hover\:border-zinc-400 {
+    &:hover {
+      @media (hover: hover) {
+        border-color: var(--color-zinc-400);
+      }
+    }
+  }
   .hover\:bg-emerald-50\/50 {
     &:hover {
       @media (hover: hover) {
@@ -1834,6 +1854,13 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-rose-50);
+      }
+    }
+  }
+  .hover\:bg-rose-500 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-rose-500);
       }
     }
   }
@@ -2612,6 +2639,15 @@
           @supports (color: color-mix(in lab, red, red)) {
             border-color: color-mix(in oklab, var(--color-emerald-500) 30%, transparent);
           }
+        }
+      }
+    }
+  }
+  .dark\:hover\:border-zinc-600 {
+    @media (prefers-color-scheme: dark) {
+      &:hover {
+        @media (hover: hover) {
+          border-color: var(--color-zinc-600);
         }
       }
     }

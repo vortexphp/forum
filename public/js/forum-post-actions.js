@@ -110,6 +110,8 @@
   const labelFlagPost = replyForm.getAttribute('data-label-flag-post') || 'Flag post';
   const labelEditPost = replyForm.getAttribute('data-label-edit-post') || 'Edit';
   const labelDeletePost = replyForm.getAttribute('data-label-delete-post') || 'Delete post';
+  const labelConfirmDeletePost =
+    replyForm.getAttribute('data-label-confirm-delete-post') || 'Delete this post? This action cannot be undone.';
   const labelModerationBadge = replyForm.getAttribute('data-label-moderation-badge') || 'Moderator';
   const labelReplyRequired = replyForm.getAttribute('data-label-reply-required') || 'Reply is required.';
   const csrfToken = replyForm.getAttribute('data-csrf-token') || '';
@@ -209,6 +211,8 @@
     const deleteHtml = canDelete
       ? '<form method="post" action="' +
         deleteUrl +
+        '" data-confirm-message="' +
+        esc(labelConfirmDeletePost) +
         '"><input type="hidden" name="_csrf" value="' +
         esc(csrfToken) +
         '"><button type="submit" class="rounded border border-rose-300 px-2 py-1 text-rose-700 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-900/20">' +

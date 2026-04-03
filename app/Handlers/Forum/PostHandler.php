@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Handlers\Forum;
 
 use App\Models\Category;
+use App\Models\Notification;
 use App\Models\Post;
 use App\Models\Thread;
 use App\Models\User;
@@ -86,6 +87,20 @@ final class PostHandler
 
         Thread::touchAfterReply((int) $thread->id);
         ForumBadgeService::recalculateForUser((int) $user->id);
+        if ((int) ($thread->user_id ?? 0) > 0 && (int) ($thread->user_id ?? 0) !== (int) $user->id) {
+            Notification::createForUser(
+                (int) $thread->user_id,
+                (int) $user->id,
+                'thread_replied',
+                \trans('notifications.events.thread_replied', [
+                    'user' => (string) ($user->name ?? 'Someone'),
+                    'thread' => (string) ($thread->title ?? ''),
+                ]),
+                null,
+                route('forum.thread.show', ['category' => (string) $category->slug, 'thread' => (string) $thread->slug]) . '#comments',
+            );
+        }
+
         $message = \trans('forum.reply.created');
 
         if ($this->wantsJson()) {

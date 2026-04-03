@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use App\Models\Notification;
 use App\Models\PrivateMessage;
 use App\Models\User;
 use Closure;
@@ -30,6 +31,7 @@ final class ShareAuthUser implements Middleware
 
         View::share('authUser', $user);
         View::share('unreadMessagesCount', $uid === null ? 0 : PrivateMessage::unreadCountForUser($uid));
+        View::share('unreadNotificationsCount', $uid === null ? 0 : Notification::unreadCountForUser($uid));
         View::share('csrfToken', Csrf::token());
         View::share('renderTimeMs', Benchmark::has('request') ? Benchmark::elapsedMs('request', 2) : 0.0);
 

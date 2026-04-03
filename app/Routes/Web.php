@@ -7,11 +7,13 @@ use App\Handlers\Auth\LoginHandler;
 use App\Handlers\Auth\LogoutHandler;
 use App\Handlers\Auth\RegisterHandler;
 use App\Handlers\Forum\CategoryHandler;
+use App\Handlers\Forum\BookmarkHandler;
 use App\Handlers\Forum\FlagHandler;
 use App\Handlers\Forum\LikeHandler;
 use App\Handlers\Forum\ModerationHandler;
 use App\Handlers\Forum\PostHandler;
 use App\Handlers\Forum\ThreadHandler;
+use App\Handlers\NotificationHandler;
 use App\Handlers\PrivateMessageHandler;
 use App\Handlers\ProfileHandler;
 use App\Handlers\SearchHandler;
@@ -52,9 +54,11 @@ Route::get('/messages/{user}', [PrivateMessageHandler::class, 'conversation'], [
 Route::post('/messages/{user}', [PrivateMessageHandler::class, 'send'], [RequireAuth::class])->name('messages.send');
 Route::get('/messages/{user}/feed', [PrivateMessageHandler::class, 'feed'], [RequireAuth::class])->name('messages.feed');
 Route::post('/messages/{user}/send-json', [PrivateMessageHandler::class, 'sendJson'], [RequireAuth::class])->name('messages.send_json');
+Route::get('/notifications', [NotificationHandler::class, 'index'], [RequireAuth::class])->name('notifications.index');
 Route::get('/search/suggest', [SearchHandler::class, 'suggest'])->name('search.suggest');
 
 Route::get('/forum', [CategoryHandler::class, 'index'])->name('forum.index');
+Route::get('/forum/bookmarks', [BookmarkHandler::class, 'index'], [RequireAuth::class])->name('forum.bookmarks');
 Route::get('/forum/{category}', [CategoryHandler::class, 'show'])->name('forum.category');
 Route::get('/forum/{category}/new', [ThreadHandler::class, 'create'], [RequireAuth::class])->name('forum.thread.create');
 Route::post('/forum/{category}/new', [ThreadHandler::class, 'store'], [RequireAuth::class, ThrottleThreadCreate::class])
@@ -62,6 +66,8 @@ Route::post('/forum/{category}/new', [ThreadHandler::class, 'store'], [RequireAu
 Route::get('/forum/{category}/{thread}', [ThreadHandler::class, 'show'])->name('forum.thread.show');
 Route::post('/forum/{category}/{thread}/reply', [PostHandler::class, 'store'], [RequireAuth::class, ThrottleReplyCreate::class])
     ->name('forum.post.store');
+Route::post('/forum/{category}/{thread}/bookmark', [BookmarkHandler::class, 'toggle'], [RequireAuth::class])
+    ->name('forum.thread.bookmark');
 Route::post('/forum/{category}/{thread}/posts/{post}/like', [LikeHandler::class, 'toggle'], [RequireAuth::class])
     ->name('forum.post.like');
 Route::post('/forum/{category}/{thread}/flag', [FlagHandler::class, 'flagThread'], [RequireAuth::class])

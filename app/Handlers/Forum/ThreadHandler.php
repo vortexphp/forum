@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\Thread;
 use App\Models\User;
 use App\Models\PostLike;
+use App\Models\ThreadBookmark;
 use App\Support\ForumBadgeService;
 use App\Support\ForumContent;
 use Vortex\Http\Csrf;
@@ -53,6 +54,7 @@ final class ThreadHandler
             $row['liked_by_auth_user'] = isset($likedMap[(int) ($row['id'] ?? 0)]);
             $postsRendered[] = $row;
         }
+        $bookmarkedByAuthUser = $uid === null ? false : ThreadBookmark::hasForUser((int) $thread->id, $uid);
 
         $lastPage = max(1, (int) ceil($postsPayload['total'] / $commentsPerPage));
         $pagination = new Paginator($postsRendered, $postsPayload['total'], $page, $commentsPerPage, $lastPage);
@@ -71,6 +73,7 @@ final class ThreadHandler
                 'category' => $category->slug,
                 'thread' => $thread->slug,
             ])),
+            'bookmarkedByAuthUser' => $bookmarkedByAuthUser,
             'status' => is_string($status) ? $status : null,
             'errors' => is_array($errors) ? $errors : [],
             'old' => is_array($old) ? $old : [],

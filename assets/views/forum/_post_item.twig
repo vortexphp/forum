@@ -53,7 +53,7 @@
                 </a>
             {% endif %}
             {% if authUser is not null and authUser.role == 'moderator' %}
-                <form method="post" action="{{ route('forum.moderation.delete_post', { category: category.slug, thread: thread.slug, post: post.id }) }}">
+                <form method="post" action="{{ route('forum.moderation.delete_post', { category: category.slug, thread: thread.slug, post: post.id }) }}" data-confirm-message="{{ trans('forum.moderation.confirm_delete_post') }}">
                     <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
                     <button type="submit" class="rounded border border-rose-300 px-2 py-1 text-rose-700 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-900/20">
                         {{ trans('forum.moderation.delete_post') }}
