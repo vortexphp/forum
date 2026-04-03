@@ -2,8 +2,8 @@
     "name": "vortexphp-blog",
     "private": true,
     "scripts": {
-        "dev:css": "tailwindcss -i assets/css/app.css -o public/css/app.css --watch",
-        "build:css": "tailwindcss -i assets/css/app.css -o public/css/app.css --minify"
+        "dev": "tailwindcss -i assets/css/app.css -o public/css/app.css --watch",
+        "build": "tailwindcss -i assets/css/app.css -o public/css/app.css --minify"
     },
     "devDependencies": {
         "@tailwindcss/cli": "^4.1.4",

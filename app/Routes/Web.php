@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 use App\Handlers\AccountHandler;
 use App\Handlers\Auth\LoginHandler;
-use App\Handlers\BlogHandler;
-use App\Handlers\BlogManageHandler;
 use App\Handlers\Auth\LogoutHandler;
 use App\Handlers\Auth\RegisterHandler;
-use App\Handlers\DocsHandler;
+use App\Handlers\Forum\CategoryHandler;
+use App\Handlers\Forum\ModerationHandler;
+use App\Handlers\Forum\PostHandler;
+use App\Handlers\Forum\ThreadHandler;
 use App\Handlers\HomeHandler;
 use App\Middleware\GuestOnly;
 use App\Middleware\RequireAuth;
+use App\Middleware\RequireModerator;
+use App\Middleware\ThrottleReplyCreate;
 use App\Middleware\ThrottleLogin;
 use App\Middleware\ThrottleRegister;
+use App\Middleware\ThrottleThreadCreate;
 use Vortex\Http\Response;
 use Vortex\Routing\Route;
 
@@ -42,3 +46,24 @@ Route::get('/account/edit', [AccountHandler::class, 'edit'], [RequireAuth::class
     ->name('account.edit')
     ->post('/account/edit', [AccountHandler::class, 'update'], [RequireAuth::class])
     ->name('account.update');
+
+Route::get('/forum', [CategoryHandler::class, 'index'])->name('forum.index');
+Route::get('/forum/{category}', [CategoryHandler::class, 'show'])->name('forum.category');
+Route::get('/forum/{category}/new', [ThreadHandler::class, 'create'], [RequireAuth::class])->name('forum.thread.create');
+Route::post('/forum/{category}/new', [ThreadHandler::class, 'store'], [RequireAuth::class, ThrottleThreadCreate::class])
+    ->name('forum.thread.store');
+Route::get('/forum/{category}/{thread}', [ThreadHandler::class, 'show'])->name('forum.thread.show');
+Route::post('/forum/{category}/{thread}/reply', [PostHandler::class, 'store'], [RequireAuth::class, ThrottleReplyCreate::class])
+    ->name('forum.post.store');
+Route::get('/forum/{category}/{thread}/posts/{post}/edit', [PostHandler::class, 'edit'], [RequireAuth::class])
+    ->name('forum.post.edit');
+Route::post('/forum/{category}/{thread}/posts/{post}/edit', [PostHandler::class, 'update'], [RequireAuth::class])
+    ->name('forum.post.update');
+Route::post('/forum/{category}/{thread}/moderate/lock', [ModerationHandler::class, 'toggleLock'], [RequireModerator::class])
+    ->name('forum.moderation.lock');
+Route::post('/forum/{category}/{thread}/moderate/pin', [ModerationHandler::class, 'togglePin'], [RequireModerator::class])
+    ->name('forum.moderation.pin');
+Route::post('/forum/{category}/{thread}/moderate/delete', [ModerationHandler::class, 'deleteThread'], [RequireModerator::class])
+    ->name('forum.moderation.delete_thread');
+Route::post('/forum/{category}/{thread}/posts/{post}/moderate/delete', [ModerationHandler::class, 'deletePost'], [RequireModerator::class])
+    ->name('forum.moderation.delete_post');

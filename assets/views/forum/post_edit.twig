@@ -1,0 +1,32 @@
+{% extends 'layouts/default.twig' %}
+{% block content %}
+<div class="mx-auto max-w-3xl">
+    <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+        <a href="{{ route('forum.index') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400">{{ trans('forum.categories.title') }}</a>
+        ·
+        <a href="{{ route('forum.category', { category: category.slug }) }}" class="hover:text-emerald-600 dark:hover:text-emerald-400">{{ category.name }}</a>
+        ·
+        <a href="{{ route('forum.thread.show', { category: category.slug, thread: thread.slug }) }}" class="hover:text-emerald-600 dark:hover:text-emerald-400">{{ thread.title }}</a>
+    </p>
+    <h1 class="mt-2 text-2xl font-semibold text-zinc-900 dark:text-white">{{ trans('forum.post.edit_title') }}</h1>
+
+    <form method="post" action="{{ route('forum.post.update', { category: category.slug, thread: thread.slug, post: post.id }) }}" class="mt-5 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/60">
+        <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
+
+        {% if errors._form is defined %}
+            <div class="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-300">{{ errors._form }}</div>
+        {% endif %}
+
+        <label for="post-body" class="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">{{ trans('forum.post.field_body') }}</label>
+        <textarea id="post-body" name="body" rows="10" class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none ring-emerald-500 focus:ring dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">{{ old.body|default(post.body) }}</textarea>
+        {% if errors.body is defined %}
+            <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ errors.body }}</p>
+        {% endif %}
+
+        <div class="mt-5 flex items-center gap-2">
+            <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-500">{{ trans('forum.post.save') }}</button>
+            <a href="{{ route('forum.thread.show', { category: category.slug, thread: thread.slug }) }}" class="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">{{ trans('forum.post.cancel') }}</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

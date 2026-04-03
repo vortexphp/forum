@@ -1,0 +1,59 @@
+{% extends 'layouts/default.twig' %}
+{% block content %}
+<div class="mx-auto max-w-5xl">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+                <a href="{{ route('forum.index') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400">{{ trans('forum.categories.title') }}</a>
+            </p>
+            <h1 class="mt-1 text-2xl font-semibold text-zinc-900 dark:text-white">{{ category.name }}</h1>
+            {% if category.description %}
+                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{{ category.description }}</p>
+            {% endif %}
+        </div>
+        {% if authUser is not null and not category.is_locked %}
+            <a href="{{ route('forum.thread.create', { category: category.slug }) }}" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-500">
+                {{ trans('forum.thread.new_button') }}
+            </a>
+        {% endif %}
+    </div>
+
+    {% if category.is_locked %}
+        <div class="mb-5 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-900/20 dark:text-amber-300">
+            {{ trans('forum.categories.locked') }}
+        </div>
+    {% endif %}
+
+    {% if threads is empty %}
+        <div class="rounded-xl border border-zinc-200 bg-white p-8 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400">
+            {{ trans('forum.thread.empty') }}
+        </div>
+    {% else %}
+        <div class="space-y-3">
+            {% for thread in threads %}
+                {% include 'forum/_thread_item.twig' with { category: category, thread: thread } %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if pagination.hasPages() %}
+        <div class="mt-6 flex items-center justify-between text-sm">
+            {% if not pagination.onFirstPage() %}
+                <a href="{{ pagination.urlForPage(pagination.page - 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    {{ trans('forum.pagination.prev') }}
+                </a>
+            {% else %}
+                <span></span>
+            {% endif %}
+            <span class="text-zinc-500 dark:text-zinc-500">{{ trans('forum.pagination.summary', { page: pagination.page, last: pagination.last_page, total: pagination.total }) }}</span>
+            {% if not pagination.onLastPage() %}
+                <a href="{{ pagination.urlForPage(pagination.page + 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    {{ trans('forum.pagination.next') }}
+                </a>
+            {% else %}
+                <span></span>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

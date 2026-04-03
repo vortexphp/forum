@@ -1,0 +1,83 @@
+{% extends 'layouts/default.twig' %}
+{% block content %}
+<div class="mx-auto max-w-5xl">
+    <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+        <a href="{{ route('forum.index') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400">{{ trans('forum.categories.title') }}</a>
+        ·
+        <a href="{{ route('forum.category', { category: category.slug }) }}" class="hover:text-emerald-600 dark:hover:text-emerald-400">{{ category.name }}</a>
+    </p>
+
+    <header class="mt-3 rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/60">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+                <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white">{{ thread.title }}</h1>
+                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-500">{{ trans('forum.thread.by') }} {{ thread.author_name }} · {{ thread.created_at }}</p>
+            </div>
+            {% if authUser is not null and authUser.role == 'moderator' %}
+                <div class="flex flex-wrap items-center gap-2">
+                    <form method="post" action="{{ route('forum.moderation.lock', { category: category.slug, thread: thread.slug }) }}">
+                        <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
+                        <button type="submit" class="rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                            {{ thread.is_locked ? trans('forum.moderation.unlock') : trans('forum.moderation.lock') }}
+                        </button>
+                    </form>
+                    <form method="post" action="{{ route('forum.moderation.pin', { category: category.slug, thread: thread.slug }) }}">
+                        <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
+                        <button type="submit" class="rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                            {{ thread.is_pinned ? trans('forum.moderation.unpin') : trans('forum.moderation.pin') }}
+                        </button>
+                    </form>
+                    <form method="post" action="{{ route('forum.moderation.delete_thread', { category: category.slug, thread: thread.slug }) }}">
+                        <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
+                        <button type="submit" class="rounded border border-rose-300 px-2.5 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50 dark:border-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-900/20">
+                            {{ trans('forum.moderation.delete_thread') }}
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+        <div class="prose prose-zinc mt-4 max-w-none whitespace-pre-wrap text-sm dark:prose-invert">{{ thread.body }}</div>
+    </header>
+
+    {% if status %}
+        <div class="mt-4 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300">{{ status }}</div>
+    {% endif %}
+    {% if errors._form is defined %}
+        <div class="mt-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-300">{{ errors._form }}</div>
+    {% endif %}
+
+    <section class="mt-6 space-y-3">
+        {% for post in posts %}
+            {% include 'forum/_post_item.twig' with { category: category, thread: thread, post: post } %}
+        {% else %}
+            <div class="rounded-xl border border-zinc-200 bg-white p-6 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400">
+                {{ trans('forum.reply.empty') }}
+            </div>
+        {% endfor %}
+    </section>
+
+    {% if pagination.hasPages() %}
+        <div class="mt-6 flex items-center justify-between text-sm">
+            {% if not pagination.onFirstPage() %}
+                <a href="{{ pagination.urlForPage(pagination.page - 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    {{ trans('forum.pagination.prev') }}
+                </a>
+            {% else %}
+                <span></span>
+            {% endif %}
+            <span class="text-zinc-500 dark:text-zinc-500">{{ trans('forum.pagination.summary', { page: pagination.page, last: pagination.last_page, total: pagination.total }) }}</span>
+            {% if not pagination.onLastPage() %}
+                <a href="{{ pagination.urlForPage(pagination.page + 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    {{ trans('forum.pagination.next') }}
+                </a>
+            {% else %}
+                <span></span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <section class="mt-8">
+        {% include 'forum/_reply_form.twig' with { category: category, thread: thread, errors: errors, old: old } %}
+    </section>
+</div>
+{% endblock %}

@@ -89,4 +89,12 @@
     article.docs-markdown .hljs-meta {
         @apply text-zinc-500;
     }
+
+    .forum-card {
+        @apply rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900/60;
+    }
+
+    .forum-body {
+        @apply whitespace-pre-wrap break-words leading-relaxed;
+    }
 }
