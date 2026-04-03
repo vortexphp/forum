@@ -22,12 +22,12 @@ final class LikeHandler
     {
         $category = Category::findBySlug($categorySlug);
         if ($category === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         $thread = Thread::findByCategoryAndSlug((int) $category->id, $threadSlug);
         if ($thread === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         if (! Csrf::validate()) {
@@ -50,7 +50,7 @@ final class LikeHandler
 
         $post = Post::findInThread((int) $postId, (int) $thread->id);
         if ($post === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         $liked = PostLike::toggle((int) $post->id, (int) $uid);

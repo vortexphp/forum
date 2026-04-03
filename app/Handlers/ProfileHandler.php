@@ -19,12 +19,12 @@ final class ProfileHandler
     {
         $uid = (int) $userId;
         if ($uid <= 0) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         $user = User::find($uid);
         if ($user === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
         ForumBadgeService::recalculateForUser($uid);
         $authUserId = Session::authUserId();

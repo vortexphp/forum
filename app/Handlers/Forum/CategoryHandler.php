@@ -31,7 +31,7 @@ final class CategoryHandler
     {
         $category = Category::findBySlug($categorySlug);
         if ($category === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         $page = max(1, (int) Request::input('page', 1));

@@ -16,7 +16,7 @@ final class SearchHandler
     {
         $raw = trim((string) Request::input('q', ''));
         if ($raw === '' || mb_strlen($raw) < 2) {
-            return $this->json(['query' => $raw, 'items' => []]);
+            return Response::json(['query' => $raw, 'items' => []]);
         }
 
         $q = mb_strtolower(mb_substr($raw, 0, 120));
@@ -93,21 +93,9 @@ final class SearchHandler
             ];
         }
 
-        return $this->json([
+        return Response::json([
             'query' => $raw,
             'items' => array_slice($items, 0, 20),
         ]);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function json(array $payload, int $status = 200): Response
-    {
-        return Response::make(
-            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
-            $status,
-            ['Content-Type' => 'application/json; charset=utf-8'],
-        );
     }
 }

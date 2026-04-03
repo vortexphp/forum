@@ -25,7 +25,7 @@ final class PostHandler
     {
         $resolved = $this->resolveThread($categorySlug, $threadSlug);
         if ($resolved === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
         [$category, $thread] = $resolved;
 
@@ -145,13 +145,13 @@ final class PostHandler
     {
         $resolved = $this->resolveThread($categorySlug, $threadSlug);
         if ($resolved === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
         [$category, $thread] = $resolved;
 
         $post = Post::findInThread((int) $postId, (int) $thread->id);
         if ($post === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         $user = $this->currentUser();
@@ -159,7 +159,7 @@ final class PostHandler
             return Response::redirect('/login', 302);
         }
         if ((int) $post->user_id !== (int) $user->id && ! $user->isModerator()) {
-            return Response::make('Forbidden', 403, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::forbidden();
         }
 
         $errors = Session::flash('errors');
@@ -179,13 +179,13 @@ final class PostHandler
     {
         $resolved = $this->resolveThread($categorySlug, $threadSlug);
         if ($resolved === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
         [$category, $thread] = $resolved;
 
         $post = Post::findInThread((int) $postId, (int) $thread->id);
         if ($post === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         if (! Csrf::validate()) {
@@ -201,7 +201,7 @@ final class PostHandler
             return Response::redirect('/login', 302);
         }
         if ((int) $post->user_id !== (int) $user->id && ! $user->isModerator()) {
-            return Response::make('Forbidden', 403, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::forbidden();
         }
 
         $data = ['body' => trim((string) Request::input('body', ''))];

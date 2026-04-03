@@ -20,7 +20,7 @@ final class FlagHandler
         $category = Category::findBySlug($categorySlug);
         $thread = $category === null ? null : Thread::findByCategoryAndSlug((int) $category->id, $threadSlug);
         if ($category === null || $thread === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         return $this->flag('thread', (int) $thread->id, $categorySlug, $threadSlug);
@@ -31,12 +31,12 @@ final class FlagHandler
         $category = Category::findBySlug($categorySlug);
         $thread = $category === null ? null : Thread::findByCategoryAndSlug((int) $category->id, $threadSlug);
         if ($category === null || $thread === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         $post = Post::findInThread((int) $postId, (int) $thread->id);
         if ($post === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         return $this->flag('post', (int) $post->id, $categorySlug, $threadSlug);

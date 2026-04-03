@@ -17,7 +17,7 @@ final class ModerationHandler
     {
         $resolved = $this->resolveThread($categorySlug, $threadSlug);
         if ($resolved === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
         [$category, $thread] = $resolved;
 
@@ -37,7 +37,7 @@ final class ModerationHandler
     {
         $resolved = $this->resolveThread($categorySlug, $threadSlug);
         if ($resolved === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
         [$category, $thread] = $resolved;
 
@@ -57,7 +57,7 @@ final class ModerationHandler
     {
         $resolved = $this->resolveThread($categorySlug, $threadSlug);
         if ($resolved === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
         [$category, $thread] = $resolved;
 
@@ -76,7 +76,7 @@ final class ModerationHandler
     {
         $resolved = $this->resolveThread($categorySlug, $threadSlug);
         if ($resolved === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
         [$category, $thread] = $resolved;
 
@@ -87,7 +87,7 @@ final class ModerationHandler
 
         $post = Post::findInThread((int) $postId, (int) $thread->id);
         if ($post === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         Post::deleteId((int) $post->id);

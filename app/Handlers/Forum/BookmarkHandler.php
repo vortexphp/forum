@@ -42,12 +42,12 @@ final class BookmarkHandler
     {
         $category = Category::findBySlug($categorySlug);
         if ($category === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         $thread = Thread::findByCategoryAndSlug((int) $category->id, $threadSlug);
         if ($thread === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         if (! Csrf::validate()) {

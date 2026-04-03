@@ -54,12 +54,12 @@ final class PrivateMessageHandler
 
         $otherId = (int) $otherUserId;
         if ($otherId <= 0 || $otherId === (int) $user->id) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         $other = User::find($otherId);
         if ($other === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         PrivateMessage::markConversationRead((int) $user->id, $otherId);
@@ -98,12 +98,12 @@ final class PrivateMessageHandler
 
         $otherId = (int) $otherUserId;
         if ($otherId <= 0 || $otherId === (int) $user->id) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         $other = User::find($otherId);
         if ($other === null) {
-            return Response::make('Not Found', 404, ['Content-Type' => 'text/plain; charset=utf-8']);
+            return Response::notFound();
         }
 
         if (! Csrf::validate()) {
