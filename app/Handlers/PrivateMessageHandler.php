@@ -12,6 +12,7 @@ use Vortex\Http\Request;
 use Vortex\Http\Response;
 use Vortex\Http\Session;
 use Vortex\Pagination\Paginator;
+use Vortex\Validation\Rule;
 use Vortex\Validation\Validator;
 use Vortex\View\View;
 
@@ -106,22 +107,19 @@ final class PrivateMessageHandler
         }
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect(route('messages.show', ['user' => $otherId]), 302);
+            return Response::redirect(route('messages.show', ['user' => $otherId]), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $data = ['body' => trim((string) Request::input('body', ''))];
         $validation = Validator::make(
             $data,
-            ['body' => 'required|string|max:5000'],
-            ['body.required' => \trans('messages.validation.body_required')],
+            ['body' => Rule::required(\trans('messages.validation.body_required'))->string()->max(5000)],
         );
         if ($validation->failed()) {
-            Session::flash('errors', $validation->errors());
-            Session::flash('old', $data);
-
-            return Response::redirect(route('messages.show', ['user' => $otherId]), 302);
+            return Response::redirect(route('messages.show', ['user' => $otherId]), 302)
+                ->withErrors($validation->errors())
+                ->withInput($data);
         }
 
         PrivateMessage::create([
@@ -131,26 +129,25 @@ final class PrivateMessageHandler
             'read_at' => null,
         ]);
 
-        Session::flash('status', \trans('messages.sent'));
-
-        return Response::redirect(route('messages.show', ['user' => $otherId]), 302);
+        return Response::redirect(route('messages.show', ['user' => $otherId]), 302)
+            ->with('status', \trans('messages.sent'));
     }
 
     public function feed(string $otherUserId): Response
     {
         $user = $this->currentUser();
         if ($user === null) {
-            return $this->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
+            return Response::json(['ok' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         $otherId = (int) $otherUserId;
         if ($otherId <= 0 || $otherId === (int) $user->id) {
-            return $this->json(['ok' => false, 'message' => 'Not Found'], 404);
+            return Response::json(['ok' => false, 'message' => 'Not Found'], 404);
         }
 
         $other = User::find($otherId);
         if ($other === null) {
-            return $this->json(['ok' => false, 'message' => 'Not Found'], 404);
+            return Response::json(['ok' => false, 'message' => 'Not Found'], 404);
         }
 
         PrivateMessage::markConversationRead((int) $user->id, $otherId);
@@ -163,7 +160,7 @@ final class PrivateMessageHandler
         ]), $payload['items']));
         $lastPage = max(1, (int) ceil($payload['total'] / $perPage));
 
-        return $this->json([
+        return Response::json([
             'ok' => true,
             'items' => $messages,
             'page' => $page,
@@ -175,31 +172,30 @@ final class PrivateMessageHandler
     {
         $user = $this->currentUser();
         if ($user === null) {
-            return $this->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
+            return Response::json(['ok' => false, 'message' => 'Unauthenticated'], 401);
         }
 
         $otherId = (int) $otherUserId;
         if ($otherId <= 0 || $otherId === (int) $user->id) {
-            return $this->json(['ok' => false, 'message' => 'Not Found'], 404);
+            return Response::json(['ok' => false, 'message' => 'Not Found'], 404);
         }
 
         $other = User::find($otherId);
         if ($other === null) {
-            return $this->json(['ok' => false, 'message' => 'Not Found'], 404);
+            return Response::json(['ok' => false, 'message' => 'Not Found'], 404);
         }
 
         if (! Csrf::validate()) {
-            return $this->json(['ok' => false, 'message' => \trans('auth.csrf_invalid')], 419);
+            return Response::json(['ok' => false, 'message' => \trans('auth.csrf_invalid')], 419);
         }
 
         $data = ['body' => trim((string) Request::input('body', ''))];
         $validation = Validator::make(
             $data,
-            ['body' => 'required|string|max:5000'],
-            ['body.required' => \trans('messages.validation.body_required')],
+            ['body' => Rule::required(\trans('messages.validation.body_required'))->string()->max(5000)],
         );
         if ($validation->failed()) {
-            return $this->json([
+            return Response::json([
                 'ok' => false,
                 'errors' => $validation->errors(),
             ], 422);
@@ -212,7 +208,7 @@ final class PrivateMessageHandler
             'read_at' => null,
         ]);
 
-        return $this->json(['ok' => true, 'message' => \trans('messages.sent')], 201);
+        return Response::json(['ok' => true, 'message' => \trans('messages.sent')], 201);
     }
 
     private function currentUser(): ?User
@@ -249,15 +245,4 @@ final class PrivateMessageHandler
         return (string) floor($diff / 31536000) . 'y';
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function json(array $payload, int $status = 200): Response
-    {
-        return Response::make(
-            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
-            $status,
-            ['Content-Type' => 'application/json; charset=utf-8'],
-        );
-    }
 }

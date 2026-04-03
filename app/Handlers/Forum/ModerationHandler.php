@@ -22,16 +22,15 @@ final class ModerationHandler
         [$category, $thread] = $resolved;
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $locked = (int) ($thread->is_locked ?? 0) === 1;
         Thread::updateRecord((int) $thread->id, ['is_locked' => $locked ? 0 : 1]);
-        Session::flash('status', $locked ? \trans('forum.moderation.unlocked') : \trans('forum.moderation.locked'));
 
-        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+            ->with('status', $locked ? \trans('forum.moderation.unlocked') : \trans('forum.moderation.locked'));
     }
 
     public function togglePin(string $categorySlug, string $threadSlug): Response
@@ -43,16 +42,15 @@ final class ModerationHandler
         [$category, $thread] = $resolved;
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $pinned = (int) ($thread->is_pinned ?? 0) === 1;
         Thread::updateRecord((int) $thread->id, ['is_pinned' => $pinned ? 0 : 1]);
-        Session::flash('status', $pinned ? \trans('forum.moderation.unpinned') : \trans('forum.moderation.pinned'));
 
-        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+            ->with('status', $pinned ? \trans('forum.moderation.unpinned') : \trans('forum.moderation.pinned'));
     }
 
     public function deleteThread(string $categorySlug, string $threadSlug): Response
@@ -64,15 +62,14 @@ final class ModerationHandler
         [$category, $thread] = $resolved;
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         Thread::deleteId((int) $thread->id);
-        Session::flash('status', \trans('forum.moderation.thread_deleted'));
 
-        return Response::redirect(route('forum.category', ['category' => $category->slug]), 302);
+        return Response::redirect(route('forum.category', ['category' => $category->slug]), 302)
+            ->with('status', \trans('forum.moderation.thread_deleted'));
     }
 
     public function deletePost(string $categorySlug, string $threadSlug, string $postId): Response
@@ -84,9 +81,8 @@ final class ModerationHandler
         [$category, $thread] = $resolved;
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $post = Post::findInThread((int) $postId, (int) $thread->id);
@@ -96,9 +92,9 @@ final class ModerationHandler
 
         Post::deleteId((int) $post->id);
         Thread::touchAfterReply((int) $thread->id);
-        Session::flash('status', \trans('forum.moderation.post_deleted'));
 
-        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+            ->with('status', \trans('forum.moderation.post_deleted'));
     }
 
     /**

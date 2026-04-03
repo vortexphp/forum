@@ -12,6 +12,7 @@ use App\Models\Thread;
 use App\Models\User;
 use App\Support\ForumBadgeService;
 use Vortex\Http\Csrf;
+use Vortex\Http\Request;
 use Vortex\Http\Response;
 use Vortex\Http\Session;
 
@@ -30,19 +31,18 @@ final class LikeHandler
         }
 
         if (! Csrf::validate()) {
-            if ($this->wantsJson()) {
-                return $this->json(['ok' => false, 'message' => \trans('auth.csrf_invalid')], 419);
+            if (Request::wantsJson()) {
+                return Response::json(['ok' => false, 'message' => \trans('auth.csrf_invalid')], 419);
             }
 
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302);
+            return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $uid = Session::authUserId();
         if ($uid === null) {
-            if ($this->wantsJson()) {
-                return $this->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
+            if (Request::wantsJson()) {
+                return Response::json(['ok' => false, 'message' => 'Unauthenticated'], 401);
             }
 
             return Response::redirect('/login', 302);
@@ -72,8 +72,8 @@ final class LikeHandler
         $message = $liked ? \trans('forum.likes.added') : \trans('forum.likes.removed');
         $likesCount = PostLike::countForPost((int) $post->id);
 
-        if ($this->wantsJson()) {
-            return $this->json([
+        if (Request::wantsJson()) {
+            return Response::json([
                 'ok' => true,
                 'liked' => $liked,
                 'likes_count' => $likesCount,
@@ -81,32 +81,7 @@ final class LikeHandler
             ]);
         }
 
-        Session::flash('status', $message);
-
-        return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302);
-    }
-
-    private function wantsJson(): bool
-    {
-        $accept = strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? ''));
-        if ($accept !== '' && str_contains($accept, 'application/json')) {
-            return true;
-        }
-
-        $requestedWith = strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''));
-
-        return $requestedWith === 'xmlhttprequest';
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function json(array $payload, int $status = 200): Response
-    {
-        return Response::make(
-            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
-            $status,
-            ['Content-Type' => 'application/json; charset=utf-8'],
-        );
+        return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302)
+            ->with('status', $message);
     }
 }

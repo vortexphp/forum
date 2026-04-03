@@ -17,6 +17,7 @@ use Vortex\Http\Request;
 use Vortex\Http\Response;
 use Vortex\Http\Session;
 use Vortex\Pagination\Paginator;
+use Vortex\Validation\Rule;
 use Vortex\Validation\Validator;
 use Vortex\View\View;
 
@@ -106,15 +107,13 @@ final class ThreadHandler
         }
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect(route('forum.thread.create', ['category' => $category->slug]), 302);
+            return Response::redirect(route('forum.thread.create', ['category' => $category->slug]), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         if ((int) ($category->is_locked ?? 0) === 1) {
-            Session::flash('errors', ['_form' => \trans('forum.categories.locked')]);
-
-            return Response::redirect(route('forum.category', ['category' => $category->slug]), 302);
+            return Response::redirect(route('forum.category', ['category' => $category->slug]), 302)
+                ->withErrors(['_form' => \trans('forum.categories.locked')]);
         }
 
         $user = $this->currentUser();
@@ -130,17 +129,16 @@ final class ThreadHandler
 
         $validation = Validator::make(
             $data,
-            ['title' => 'required|string|max:180', 'body' => 'required|string|max:20000', 'tags' => 'nullable|string|max:200'],
             [
-                'title.required' => \trans('forum.validation.thread_title_required'),
-                'body.required' => \trans('forum.validation.thread_body_required'),
+                'title' => Rule::required(\trans('forum.validation.thread_title_required'))->string()->max(180),
+                'body' => Rule::required(\trans('forum.validation.thread_body_required'))->string()->max(20000),
+                'tags' => Rule::nullable()->string()->max(200),
             ],
         );
         if ($validation->failed()) {
-            Session::flash('errors', $validation->errors());
-            Session::flash('old', $data);
-
-            return Response::redirect(route('forum.thread.create', ['category' => $category->slug]), 302);
+            return Response::redirect(route('forum.thread.create', ['category' => $category->slug]), 302)
+                ->withErrors($validation->errors())
+                ->withInput($data);
         }
 
         $slug = $this->uniqueSlug((int) $category->id, $data['title']);
@@ -167,12 +165,10 @@ final class ThreadHandler
         Thread::syncTags((int) $thread->id, $this->parseTags($data['tags']));
         ForumBadgeService::recalculateForUser((int) $user->id);
 
-        Session::flash('status', \trans('forum.thread.created'));
-
         return Response::redirect(route('forum.thread.show', [
             'category' => $category->slug,
             'thread' => $thread->slug,
-        ]), 302);
+        ]), 302)->with('status', \trans('forum.thread.created'));
     }
 
     /**

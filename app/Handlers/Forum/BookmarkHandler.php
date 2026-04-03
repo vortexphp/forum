@@ -51,9 +51,8 @@ final class BookmarkHandler
         }
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302);
+            return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $uid = Session::authUserId();
@@ -62,8 +61,8 @@ final class BookmarkHandler
         }
 
         $bookmarked = ThreadBookmark::toggle((int) $thread->id, $uid);
-        Session::flash('status', $bookmarked ? \trans('forum.bookmarks.added') : \trans('forum.bookmarks.removed'));
 
-        return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302);
+        return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302)
+            ->with('status', $bookmarked ? \trans('forum.bookmarks.added') : \trans('forum.bookmarks.removed'));
     }
 }

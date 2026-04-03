@@ -49,19 +49,17 @@ final class InstallHandler
         }
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => 'Invalid CSRF token. Please reload and try again.']);
-            Session::flash('old', $this->readInstallForm());
-
-            return Response::redirect('/install', 302);
+            return Response::redirect('/install', 302)
+                ->withErrors(['_form' => 'Invalid CSRF token. Please reload and try again.'])
+                ->withInput($this->readInstallForm());
         }
 
         $data = $this->readInstallForm();
         $errors = $this->validateInstallForm($data);
         if ($errors !== []) {
-            Session::flash('errors', $errors);
-            Session::flash('old', $data);
-
-            return Response::redirect('/install', 302);
+            return Response::redirect('/install', 302)
+                ->withErrors($errors)
+                ->withInput($data);
         }
 
         try {
@@ -87,15 +85,16 @@ final class InstallHandler
                 (new ForumSeedService())->seed();
             }
 
-            Session::flash('status', 'Installation completed. You can now sign in.');
-            Session::flash('install_admin_email', $adminEmail);
-            return Response::redirect('/login', 302);
+            return Response::redirect('/login', 302)
+                ->withMany([
+                    'status' => 'Installation completed. You can now sign in.',
+                    'install_admin_email' => $adminEmail,
+                ]);
         } catch (Throwable $e) {
-            Session::flash('errors', ['_form' => 'Installation failed: ' . $e->getMessage()]);
-            Session::flash('old', $data);
+            return Response::redirect('/install', 302)
+                ->withErrors(['_form' => 'Installation failed: ' . $e->getMessage()])
+                ->withInput($data);
         }
-
-        return Response::redirect('/install', 302);
     }
 
     /**

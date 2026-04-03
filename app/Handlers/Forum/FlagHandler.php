@@ -45,9 +45,8 @@ final class FlagHandler
     private function flag(string $type, int $targetId, string $categorySlug, string $threadSlug): Response
     {
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302);
+            return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $uid = Session::authUserId();
@@ -56,9 +55,8 @@ final class FlagHandler
         }
 
         if (ContentFlag::hasUserFlagged((int) $uid, $type, $targetId)) {
-            Session::flash('status', \trans('forum.flags.already_flagged'));
-
-            return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302);
+            return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302)
+                ->with('status', \trans('forum.flags.already_flagged'));
         }
 
         $reason = trim((string) Request::input('reason', 'inappropriate'));
@@ -74,8 +72,7 @@ final class FlagHandler
             'status' => 'open',
         ]);
 
-        Session::flash('status', \trans('forum.flags.reported'));
-
-        return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302);
+        return Response::redirect(route('forum.thread.show', ['category' => $categorySlug, 'thread' => $threadSlug]), 302)
+            ->with('status', \trans('forum.flags.reported'));
     }
 }

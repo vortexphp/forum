@@ -11,6 +11,7 @@ use Vortex\Http\Request;
 use Vortex\Http\Response;
 use Vortex\Http\Session;
 use Vortex\Support\UrlHelp;
+use Vortex\Validation\Rule;
 use Vortex\Validation\Validator;
 use Vortex\View\View;
 
@@ -18,13 +19,14 @@ final class LoginHandler
 {
     public function show(): Response
     {
-        $errors = Session::flash('errors');
-        $status = Session::flash('status');
-        $installAdminEmail = Session::flash('install_admin_email');
+        $session = Session::store();
+        $errors = $session->flashGet('errors');
+        $status = $session->flashGet('status');
+        $installAdminEmail = $session->flashGet('install_admin_email');
         if (is_string($installAdminEmail) && $installAdminEmail !== '') {
             $status = 'Installation completed. Admin login: ' . $installAdminEmail;
         }
-        $old = Session::flash('old');
+        $old = $session->flashGet('old');
         $next = self::safeNext(Request::query()['next'] ?? '/');
 
         return View::html('auth.login', [
@@ -38,12 +40,12 @@ final class LoginHandler
 
     public function store(): Response
     {
+        $session = Session::store();
         $next = self::safeNext(Request::input('next', '/'));
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect(UrlHelp::withQuery('/login', ['next' => $next]), 302);
+            return Response::redirect(UrlHelp::withQuery('/login', ['next' => $next]), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $data = [
@@ -54,21 +56,16 @@ final class LoginHandler
         $validation = Validator::make(
             $data,
             [
-                'email' => 'required|email',
-                'password' => 'required',
-            ],
-            [
-                'email.required' => \trans('validation.email_invalid'),
-                'email.email' => \trans('validation.email_invalid'),
-                'password.required' => \trans('validation.password_required'),
+                'email' => Rule::required(\trans('validation.email_invalid'))
+                    ->email(\trans('validation.email_invalid')),
+                'password' => Rule::required(\trans('validation.password_required')),
             ],
         );
 
         if ($validation->failed()) {
-            Session::flash('errors', $validation->errors());
-            Session::flash('old', ['email' => $data['email']]);
-
-            return Response::redirect(UrlHelp::withQuery('/login', ['next' => $next]), 302);
+            return Response::redirect(UrlHelp::withQuery('/login', ['next' => $next]), 302)
+                ->withErrors($validation->errors())
+                ->withInput(['email' => $data['email']]);
         }
 
         $email = $data['email'];
@@ -78,14 +75,13 @@ final class LoginHandler
             ? User::findByEmail($email)
             : User::findByName($email);
         if ($user === null || ! is_string($user->password ?? null) || ! Password::verify($password, $user->password)) {
-            Session::flash('errors', ['email' => \trans('auth.credentials_invalid')]);
-            Session::flash('old', ['email' => $email]);
-
-            return Response::redirect(UrlHelp::withQuery('/login', ['next' => $next]), 302);
+            return Response::redirect(UrlHelp::withQuery('/login', ['next' => $next]), 302)
+                ->withErrors(['email' => \trans('auth.credentials_invalid')])
+                ->withInput(['email' => $email]);
         }
 
-        Session::regenerate();
-        Session::put('auth_user_id', (int) $user->id);
+        $session->regenerate();
+        $session->put('auth_user_id', (int) $user->id);
 
         return Response::redirect($next, 302);
     }

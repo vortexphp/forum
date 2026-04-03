@@ -10,6 +10,7 @@ use Vortex\Http\Csrf;
 use Vortex\Http\Request;
 use Vortex\Http\Response;
 use Vortex\Http\Session;
+use Vortex\Validation\Rule;
 use Vortex\Validation\Validator;
 use Vortex\View\View;
 
@@ -37,33 +38,28 @@ final class RegisterHandler
         ];
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-            Session::flash('old', self::oldPublicFields($data));
-
-            return Response::redirect('/register', 302);
+            return Response::redirect('/register', 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')])
+                ->withInput(self::oldPublicFields($data));
         }
 
         $validation = Validator::make(
             $data,
             [
-                'name' => 'required|string|max:120',
-                'email' => 'required|email|max:255',
-                'password' => 'required|min:8|confirmed',
-            ],
-            [
-                'name.required' => \trans('validation.name_required'),
-                'email.required' => \trans('validation.email_required'),
-                'email.email' => \trans('validation.email_invalid'),
-                'password.min' => \trans('validation.password_min'),
-                'password.confirmed' => \trans('validation.password_confirmed'),
+                'name' => Rule::required(\trans('validation.name_required'))->string()->max(120),
+                'email' => Rule::required(\trans('validation.email_required'))
+                    ->email(\trans('validation.email_invalid'))
+                    ->max(255),
+                'password' => Rule::required()
+                    ->min(8, \trans('validation.password_min'))
+                    ->confirmed(\trans('validation.password_confirmed')),
             ],
         );
 
         if ($validation->failed()) {
-            Session::flash('errors', $validation->errors());
-            Session::flash('old', self::oldPublicFields($data));
-
-            return Response::redirect('/register', 302);
+            return Response::redirect('/register', 302)
+                ->withErrors($validation->errors())
+                ->withInput(self::oldPublicFields($data));
         }
 
         $name = $data['name'];
@@ -71,10 +67,9 @@ final class RegisterHandler
         $password = $data['password'];
 
         if (User::findByEmail($email) !== null) {
-            Session::flash('errors', ['email' => \trans('auth.email_taken')]);
-            Session::flash('old', self::oldPublicFields($data));
-
-            return Response::redirect('/register', 302);
+            return Response::redirect('/register', 302)
+                ->withErrors(['email' => \trans('auth.email_taken')])
+                ->withInput(self::oldPublicFields($data));
         }
 
         User::create([
@@ -83,9 +78,8 @@ final class RegisterHandler
             'password' => Password::hash($password),
         ]);
 
-        Session::flash('status', \trans('auth.register_success_flash'));
-
-        return Response::redirect('/login', 302);
+        return Response::redirect('/login', 302)
+            ->with('status', \trans('auth.register_success_flash'));
     }
 
     /**

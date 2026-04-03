@@ -15,6 +15,7 @@ use Vortex\Http\Csrf;
 use Vortex\Http\Request;
 use Vortex\Http\Response;
 use Vortex\Http\Session;
+use Vortex\Validation\Rule;
 use Vortex\Validation\Validator;
 use Vortex\View\View;
 
@@ -29,52 +30,48 @@ final class PostHandler
         [$category, $thread] = $resolved;
 
         if (! Csrf::validate()) {
-            if ($this->wantsJson()) {
-                return $this->json(['ok' => false, 'message' => \trans('auth.csrf_invalid')], 419);
+            if (Request::wantsJson()) {
+                return Response::json(['ok' => false, 'message' => \trans('auth.csrf_invalid')], 419);
             }
 
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $user = $this->currentUser();
         if ($user === null) {
-            if ($this->wantsJson()) {
-                return $this->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
+            if (Request::wantsJson()) {
+                return Response::json(['ok' => false, 'message' => 'Unauthenticated'], 401);
             }
 
             return Response::redirect('/login', 302);
         }
 
         if ((int) ($thread->is_locked ?? 0) === 1 && ! $user->isModerator()) {
-            if ($this->wantsJson()) {
-                return $this->json(['ok' => false, 'message' => \trans('forum.thread.locked')], 423);
+            if (Request::wantsJson()) {
+                return Response::json(['ok' => false, 'message' => \trans('forum.thread.locked')], 423);
             }
 
-            Session::flash('errors', ['_form' => \trans('forum.thread.locked')]);
-
-            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+                ->withErrors(['_form' => \trans('forum.thread.locked')]);
         }
 
         $data = ['body' => trim((string) Request::input('body', ''))];
         $validation = Validator::make(
             $data,
-            ['body' => 'required|string|max:20000'],
-            ['body.required' => \trans('forum.validation.reply_required')],
+            ['body' => Rule::required(\trans('forum.validation.reply_required'))->string()->max(20000)],
         );
         if ($validation->failed()) {
-            if ($this->wantsJson()) {
-                return $this->json([
+            if (Request::wantsJson()) {
+                return Response::json([
                     'ok' => false,
                     'errors' => $validation->errors(),
                 ], 422);
             }
 
-            Session::flash('errors', $validation->errors());
-            Session::flash('old', $data);
-
-            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+            return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+                ->withErrors($validation->errors())
+                ->withInput($data);
         }
 
         $post = Post::create([
@@ -103,7 +100,7 @@ final class PostHandler
 
         $message = \trans('forum.reply.created');
 
-        if ($this->wantsJson()) {
+        if (Request::wantsJson()) {
             $primaryBadge = null;
             foreach ($user->publicBadges() as $badge) {
                 if ($badge !== '' && $badge !== 'moderator') {
@@ -112,7 +109,7 @@ final class PostHandler
                 }
             }
 
-            return $this->json([
+            return Response::json([
                 'ok' => true,
                 'message' => $message,
                 'post' => [
@@ -140,9 +137,8 @@ final class PostHandler
             ]);
         }
 
-        Session::flash('status', $message);
-
-        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+            ->with('status', $message);
     }
 
     public function edit(string $categorySlug, string $threadSlug, string $postId): Response
@@ -193,13 +189,11 @@ final class PostHandler
         }
 
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
             return Response::redirect(route('forum.post.edit', [
                 'category' => $category->slug,
                 'thread' => $thread->slug,
                 'post' => (int) $post->id,
-            ]), 302);
+            ]), 302)->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $user = $this->currentUser();
@@ -213,18 +207,14 @@ final class PostHandler
         $data = ['body' => trim((string) Request::input('body', ''))];
         $validation = Validator::make(
             $data,
-            ['body' => 'required|string|max:20000'],
-            ['body.required' => \trans('forum.validation.reply_required')],
+            ['body' => Rule::required(\trans('forum.validation.reply_required'))->string()->max(20000)],
         );
         if ($validation->failed()) {
-            Session::flash('errors', $validation->errors());
-            Session::flash('old', $data);
-
             return Response::redirect(route('forum.post.edit', [
                 'category' => $category->slug,
                 'thread' => $thread->slug,
                 'post' => (int) $post->id,
-            ]), 302);
+            ]), 302)->withErrors($validation->errors())->withInput($data);
         }
 
         Post::updateRecord((int) $post->id, [
@@ -233,9 +223,8 @@ final class PostHandler
             'edited_at' => gmdate('Y-m-d H:i:s'),
         ]);
 
-        Session::flash('status', \trans('forum.post.updated'));
-
-        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302);
+        return Response::redirect($this->threadUrl((string) $category->slug, (string) $thread->slug), 302)
+            ->with('status', \trans('forum.post.updated'));
     }
 
     /**
@@ -269,29 +258,5 @@ final class PostHandler
         $uid = Session::authUserId();
 
         return $uid === null ? null : User::find($uid);
-    }
-
-    private function wantsJson(): bool
-    {
-        $accept = strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? ''));
-        if ($accept !== '' && str_contains($accept, 'application/json')) {
-            return true;
-        }
-
-        $requestedWith = strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''));
-
-        return $requestedWith === 'xmlhttprequest';
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function json(array $payload, int $status = 200): Response
-    {
-        return Response::make(
-            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
-            $status,
-            ['Content-Type' => 'application/json; charset=utf-8'],
-        );
     }
 }

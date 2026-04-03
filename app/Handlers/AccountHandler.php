@@ -13,6 +13,7 @@ use Vortex\Http\Request;
 use Vortex\Http\Response;
 use Vortex\Http\Session;
 use Vortex\Http\UploadedFile;
+use Vortex\Validation\Rule;
 use Vortex\Validation\Validator;
 use Vortex\View\View;
 use Throwable;
@@ -54,9 +55,8 @@ final class AccountHandler
     public function update(): Response
     {
         if (! Csrf::validate()) {
-            Session::flash('errors', ['_form' => \trans('auth.csrf_invalid')]);
-
-            return Response::redirect('/account/edit', 302);
+            return Response::redirect('/account/edit', 302)
+                ->withErrors(['_form' => \trans('auth.csrf_invalid')]);
         }
 
         $user = $this->currentUser();
@@ -69,16 +69,13 @@ final class AccountHandler
         $validation = Validator::make(
             $data,
             [
-                'name' => 'required|string|max:120',
-                'email' => 'required|email|max:255',
-                'password' => 'nullable|min:8|confirmed',
-            ],
-            [
-                'name.required' => \trans('validation.name_required'),
-                'email.required' => \trans('validation.email_required'),
-                'email.email' => \trans('validation.email_invalid'),
-                'password.min' => \trans('validation.password_min'),
-                'password.confirmed' => \trans('validation.password_confirmed'),
+                'name' => Rule::required(\trans('validation.name_required'))->string()->max(120),
+                'email' => Rule::required(\trans('validation.email_required'))
+                    ->email(\trans('validation.email_invalid'))
+                    ->max(255),
+                'password' => Rule::nullable()
+                    ->min(8, \trans('validation.password_min'))
+                    ->confirmed(\trans('validation.password_confirmed')),
             ],
         );
 
@@ -134,9 +131,8 @@ final class AccountHandler
 
         User::updateRecord($uid, $payload);
 
-        Session::flash('status', \trans('account.edit.saved'));
-
-        return Response::redirect('/account', 302);
+        return Response::redirect('/account', 302)
+            ->with('status', \trans('account.edit.saved'));
     }
 
     /**
@@ -158,10 +154,9 @@ final class AccountHandler
      */
     private function redirectAccountEdit(array $errors, array $data): Response
     {
-        Session::flash('errors', $errors);
-        Session::flash('old', ['name' => $data['name'], 'email' => $data['email']]);
-
-        return Response::redirect('/account/edit', 302);
+        return Response::redirect('/account/edit', 302)
+            ->withErrors($errors)
+            ->withInput(['name' => $data['name'], 'email' => $data['email']]);
     }
 
     private function currentUser(): ?User
