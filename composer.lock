@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2af4db7c08dc68ac1862b44c53928033",
+    "content-hash": "8a43151fa3b33e5882b390e7e43fff70",
     "packages": [
         {
             "name": "dflydev/dot-access-data",
@@ -879,16 +879,16 @@
         },
         {
             "name": "vortexphp/framework",
-            "version": "v0.1.0",
+            "version": "v0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vortexphp/framework.git",
-                "reference": "37fe70991933c3051aa60733289bd6358c97dd83"
+                "reference": "5bea4d7825ecf12a84a68b85f21d5517ccf9d611"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vortexphp/framework/zipball/37fe70991933c3051aa60733289bd6358c97dd83",
-                "reference": "37fe70991933c3051aa60733289bd6358c97dd83",
+                "url": "https://api.github.com/repos/vortexphp/framework/zipball/5bea4d7825ecf12a84a68b85f21d5517ccf9d611",
+                "reference": "5bea4d7825ecf12a84a68b85f21d5517ccf9d611",
                 "shasum": ""
             },
             "require": {
@@ -898,6 +898,7 @@
                 "twig/twig": "^3.0"
             },
             "require-dev": {
+                "mockery/mockery": "^1.6",
                 "phpunit/phpunit": "^11.0"
             },
             "suggest": {
@@ -920,9 +921,9 @@
             "description": "Lightweight PHP application stack (app/, engine/, config, assets)",
             "support": {
                 "issues": "https://github.com/vortexphp/framework/issues",
-                "source": "https://github.com/vortexphp/framework/tree/v0.1.0"
+                "source": "https://github.com/vortexphp/framework/tree/v0.5.0"
             },
-            "time": "2026-04-03T15:55:11+00:00"
+            "time": "2026-04-03T19:23:06+00:00"
         }
     ],
     "packages-dev": [],

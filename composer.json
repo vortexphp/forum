@@ -6,7 +6,7 @@
     "require": {
         "php": "^8.2",
         "league/commonmark": "^2.8",
-        "vortexphp/framework": "^0.1"
+        "vortexphp/framework": "^0.5"
     },
     "autoload": {
         "psr-4": {
