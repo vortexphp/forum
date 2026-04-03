@@ -184,6 +184,12 @@ return [
             'locked' => 'This thread is locked.',
             'reply_count' => ':count replies',
             'last_post' => 'Last post:',
+            'columns' => [
+                'topic' => 'Topic',
+                'replies' => 'Replies',
+                'views' => 'Views',
+                'activity' => 'Activity',
+            ],
         ],
         'reply' => [
             'heading' => 'Comments',

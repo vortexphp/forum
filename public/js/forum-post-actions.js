@@ -46,7 +46,13 @@
   const setButtonState = (button, liked, likesCount) => {
     const label = button.getAttribute('data-label-like') || 'Like';
     button.setAttribute('data-liked', liked ? '1' : '0');
-    button.textContent = label + ' (' + String(likesCount) + ')';
+    button.innerHTML =
+      '<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10v10"></path><path d="M12 10v10"></path><path d="M17 10v10"></path><path d="M5 10h14"></path><path d="M10 10V6a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v4"></path></svg>' +
+      '<span>' +
+      esc(label) +
+      ' (' +
+      String(likesCount) +
+      ')</span>';
 
     button.classList.remove(...likedClasses, ...unlikedClasses);
     if (liked) {
@@ -195,7 +201,8 @@
     const editHtml = canEdit
       ? '<a href="' +
         editUrl +
-        '" class="rounded border border-zinc-300 px-2 py-1 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">' +
+        '" class="inline-flex items-center gap-1.5 rounded border border-zinc-300 px-2 py-1 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">' +
+        '<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="m16.5 3.5 4 4L8 20l-5 1 1-5Z"></path></svg>' +
         esc(labelEditPost) +
         '</a>'
       : '';
@@ -229,16 +236,19 @@
       esc(csrfToken) +
       '"><button type="submit" data-like-button data-liked="0" data-label-like="' +
       esc(labelLike) +
-      '" class="rounded border px-2 py-1 ' +
+      '" class="inline-flex items-center gap-1.5 rounded border px-2 py-1 ' +
       likeClass +
       '">' +
+      '<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10v10"></path><path d="M12 10v10"></path><path d="M17 10v10"></path><path d="M5 10h14"></path><path d="M10 10V6a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v4"></path></svg>' +
+      '<span>' +
       esc(labelLike) +
-      ' (0)</button></form>' +
+      ' (0)</span></button></form>' +
       '<form method="post" action="' +
       flagUrl +
       '"><input type="hidden" name="_csrf" value="' +
       esc(csrfToken) +
-      '"><input type="hidden" name="reason" value="post"><button type="submit" class="rounded border border-zinc-300 px-2 py-1 text-zinc-700 hover:border-amber-500 hover:text-amber-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-amber-500 dark:hover:text-amber-300">' +
+      '"><input type="hidden" name="reason" value="post"><button type="submit" class="inline-flex items-center gap-1.5 rounded border border-zinc-300 px-2 py-1 text-zinc-700 hover:border-amber-500 hover:text-amber-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-amber-500 dark:hover:text-amber-300">' +
+      '<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v18"></path><path d="M8 4h11l-2.5 4 2.5 4H8"></path></svg>' +
       esc(labelFlagPost) +
       '</button></form>' +
       editHtml +

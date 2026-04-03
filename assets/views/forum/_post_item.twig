@@ -29,15 +29,17 @@
                         data-like-button
                         data-liked="{{ post.liked_by_auth_user ? '1' : '0' }}"
                         data-label-like="{{ trans('forum.likes.button') }}"
-                        class="rounded border px-2 py-1 {{ post.liked_by_auth_user ? 'border-emerald-500 text-emerald-700 dark:border-emerald-500 dark:text-emerald-300' : 'border-zinc-300 text-zinc-700 dark:border-zinc-700 dark:text-zinc-300' }}"
+                        class="inline-flex items-center gap-1.5 rounded border px-2 py-1 {{ post.liked_by_auth_user ? 'border-emerald-500 text-emerald-700 dark:border-emerald-500 dark:text-emerald-300' : 'border-zinc-300 text-zinc-700 dark:border-zinc-700 dark:text-zinc-300' }}"
                     >
-                        {{ trans('forum.likes.button') }} ({{ post.likes_count|default(0) }})
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10v10"></path><path d="M12 10v10"></path><path d="M17 10v10"></path><path d="M5 10h14"></path><path d="M10 10V6a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v4"></path></svg>
+                        <span>{{ trans('forum.likes.button') }} ({{ post.likes_count|default(0) }})</span>
                     </button>
                 </form>
                 <form method="post" action="{{ route('forum.flag.post', { category: category.slug, thread: thread.slug, post: post.id }) }}">
                     <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
                     <input type="hidden" name="reason" value="post">
-                    <button type="submit" class="rounded border border-zinc-300 px-2 py-1 text-zinc-700 hover:border-amber-500 hover:text-amber-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-amber-500 dark:hover:text-amber-300">
+                    <button type="submit" class="inline-flex items-center gap-1.5 rounded border border-zinc-300 px-2 py-1 text-zinc-700 hover:border-amber-500 hover:text-amber-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-amber-500 dark:hover:text-amber-300">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v18"></path><path d="M8 4h11l-2.5 4 2.5 4H8"></path></svg>
                         {{ trans('forum.flags.flag_post') }}
                     </button>
                 </form>
@@ -45,7 +47,8 @@
                 <span class="rounded border border-zinc-300 px-2 py-1 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">{{ trans('forum.likes.button') }} ({{ post.likes_count|default(0) }})</span>
             {% endif %}
             {% if authUser is not null and ((authUser.id == post.user_id) or authUser.role == 'moderator') %}
-                <a href="{{ route('forum.post.edit', { category: category.slug, thread: thread.slug, post: post.id }) }}" class="rounded border border-zinc-300 px-2 py-1 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                <a href="{{ route('forum.post.edit', { category: category.slug, thread: thread.slug, post: post.id }) }}" class="inline-flex items-center gap-1.5 rounded border border-zinc-300 px-2 py-1 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="m16.5 3.5 4 4L8 20l-5 1 1-5Z"></path></svg>
                     {{ trans('forum.post.edit') }}
                 </a>
             {% endif %}

@@ -31,6 +31,12 @@
             {{ trans('forum.thread.empty') }}
         </div>
     {% else %}
+        <div class="mb-2 hidden items-center rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 md:grid md:grid-cols-[minmax(0,1fr)_96px_96px_150px] md:gap-3">
+            <span>{{ trans('forum.thread.columns.topic') }}</span>
+            <span class="text-center">{{ trans('forum.thread.columns.replies') }}</span>
+            <span class="text-center">{{ trans('forum.thread.columns.views') }}</span>
+            <span class="text-right">{{ trans('forum.thread.columns.activity') }}</span>
+        </div>
         <div class="space-y-3">
             {% for thread in threads %}
                 {% include 'forum/_thread_item.twig' with { category: category, thread: thread } %}

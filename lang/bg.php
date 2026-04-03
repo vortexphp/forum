@@ -184,6 +184,12 @@ return [
             'locked' => 'Тази тема е заключена.',
             'reply_count' => ':count отговора',
             'last_post' => 'Последен пост:',
+            'columns' => [
+                'topic' => 'Тема',
+                'replies' => 'Отговори',
+                'views' => 'Преглеждания',
+                'activity' => 'Активност',
+            ],
         ],
         'reply' => [
             'heading' => 'Коментари',
