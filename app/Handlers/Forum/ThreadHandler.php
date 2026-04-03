@@ -8,6 +8,8 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Thread;
 use App\Models\User;
+use App\Models\PostLike;
+use App\Support\ForumContent;
 use Vortex\Http\Csrf;
 use Vortex\Http\Request;
 use Vortex\Http\Response;
@@ -37,8 +39,21 @@ final class ThreadHandler
 
         $page = max(1, (int) Request::input('page', 1));
         $postsPayload = Post::paginateForThread((int) $thread->id, $page, 20);
+        $uid = Session::authUserId();
+        $postIds = [];
+        foreach ($postsPayload['items'] as $row) {
+            $postIds[] = (int) ($row['id'] ?? 0);
+        }
+        $likedMap = $uid === null ? [] : PostLike::likedMapForUser($uid, $postIds);
+        $postsRendered = [];
+        foreach ($postsPayload['items'] as $row) {
+            $row['body_html'] = ForumContent::render((string) ($row['body'] ?? ''));
+            $row['liked_by_auth_user'] = isset($likedMap[(int) ($row['id'] ?? 0)]);
+            $postsRendered[] = $row;
+        }
+
         $lastPage = max(1, (int) ceil($postsPayload['total'] / 20));
-        $pagination = new Paginator($postsPayload['items'], $postsPayload['total'], $page, 20, $lastPage);
+        $pagination = new Paginator($postsRendered, $postsPayload['total'], $page, 20, $lastPage);
 
         $status = Session::flash('status');
         $errors = Session::flash('errors');
@@ -47,8 +62,9 @@ final class ThreadHandler
         return View::html('forum.thread_show', [
             'title' => (string) $thread->title,
             'category' => $category,
-            'thread' => $threadData,
-            'posts' => $postsPayload['items'],
+            'thread' => $threadData + ['body_html' => ForumContent::render((string) ($threadData['body'] ?? ''))],
+            'tags' => Thread::tags((int) $thread->id),
+            'posts' => $postsRendered,
             'pagination' => $pagination->withBasePath(route('forum.thread.show', [
                 'category' => $category->slug,
                 'thread' => $thread->slug,
@@ -104,11 +120,12 @@ final class ThreadHandler
         $data = [
             'title' => trim((string) Request::input('title', '')),
             'body' => trim((string) Request::input('body', '')),
+            'tags' => trim((string) Request::input('tags', '')),
         ];
 
         $validation = Validator::make(
             $data,
-            ['title' => 'required|string|max:180', 'body' => 'required|string|max:20000'],
+            ['title' => 'required|string|max:180', 'body' => 'required|string|max:20000', 'tags' => 'nullable|string|max:200'],
             [
                 'title.required' => \trans('forum.validation.thread_title_required'),
                 'body.required' => \trans('forum.validation.thread_body_required'),
@@ -142,6 +159,7 @@ final class ThreadHandler
             'is_edited' => 0,
             'edited_at' => null,
         ]);
+        Thread::syncTags((int) $thread->id, $this->parseTags($data['tags']));
 
         Session::flash('status', \trans('forum.thread.created'));
 
@@ -149,6 +167,26 @@ final class ThreadHandler
             'category' => $category->slug,
             'thread' => $thread->slug,
         ]), 302);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function parseTags(string $raw): array
+    {
+        $parts = array_map(static fn (string $v): string => trim($v), explode(',', $raw));
+        $out = [];
+        foreach ($parts as $part) {
+            if ($part === '') {
+                continue;
+            }
+            $out[] = substr($part, 0, 40);
+            if (count($out) >= 6) {
+                break;
+            }
+        }
+
+        return array_values(array_unique($out));
     }
 
     private function uniqueSlug(int $categoryId, string $title): string

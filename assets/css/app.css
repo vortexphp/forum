@@ -26,4 +26,8 @@
     .forum-body {
         @apply whitespace-pre-wrap break-words leading-relaxed;
     }
+
+    .forum-mention {
+        @apply rounded bg-emerald-100 px-1.5 py-0.5 font-semibold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300;
+    }
 }

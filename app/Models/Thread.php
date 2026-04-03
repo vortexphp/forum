@@ -91,4 +91,44 @@ final class Thread extends Model
             [$threadId, gmdate('Y-m-d H:i:s'), gmdate('Y-m-d H:i:s'), $threadId],
         );
     }
+
+    /**
+     * @param list<string> $tags
+     */
+    public static function syncTags(int $threadId, array $tags): void
+    {
+        static::connection()->execute('DELETE FROM thread_tags WHERE thread_id = ?', [$threadId]);
+        foreach ($tags as $label) {
+            $name = trim($label);
+            if ($name === '') {
+                continue;
+            }
+            $slug = self::slugifyTag($name);
+            $tag = Tag::findBySlug($slug);
+            if ($tag === null) {
+                $tag = Tag::create(['name' => $name, 'slug' => $slug]);
+            }
+            static::connection()->execute(
+                'INSERT INTO thread_tags (thread_id, tag_id, created_at, updated_at) VALUES (?, ?, ?, ?)',
+                [$threadId, (int) $tag->id, gmdate('Y-m-d H:i:s'), gmdate('Y-m-d H:i:s')],
+            );
+        }
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function tags(int $threadId): array
+    {
+        return Tag::forThread($threadId);
+    }
+
+    private static function slugifyTag(string $value): string
+    {
+        $slug = strtolower(trim($value));
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug) ?? '';
+        $slug = trim($slug, '-');
+
+        return $slug !== '' ? $slug : 'tag';
+    }
 }

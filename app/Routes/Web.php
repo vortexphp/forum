@@ -7,6 +7,8 @@ use App\Handlers\Auth\LoginHandler;
 use App\Handlers\Auth\LogoutHandler;
 use App\Handlers\Auth\RegisterHandler;
 use App\Handlers\Forum\CategoryHandler;
+use App\Handlers\Forum\FlagHandler;
+use App\Handlers\Forum\LikeHandler;
 use App\Handlers\Forum\ModerationHandler;
 use App\Handlers\Forum\PostHandler;
 use App\Handlers\Forum\ThreadHandler;
@@ -50,6 +52,12 @@ Route::post('/forum/{category}/new', [ThreadHandler::class, 'store'], [RequireAu
 Route::get('/forum/{category}/{thread}', [ThreadHandler::class, 'show'])->name('forum.thread.show');
 Route::post('/forum/{category}/{thread}/reply', [PostHandler::class, 'store'], [RequireAuth::class, ThrottleReplyCreate::class])
     ->name('forum.post.store');
+Route::post('/forum/{category}/{thread}/posts/{post}/like', [LikeHandler::class, 'toggle'], [RequireAuth::class])
+    ->name('forum.post.like');
+Route::post('/forum/{category}/{thread}/flag', [FlagHandler::class, 'flagThread'], [RequireAuth::class])
+    ->name('forum.flag.thread');
+Route::post('/forum/{category}/{thread}/posts/{post}/flag', [FlagHandler::class, 'flagPost'], [RequireAuth::class])
+    ->name('forum.flag.post');
 Route::get('/forum/{category}/{thread}/posts/{post}/edit', [PostHandler::class, 'edit'], [RequireAuth::class])
     ->name('forum.post.edit');
 Route::post('/forum/{category}/{thread}/posts/{post}/edit', [PostHandler::class, 'update'], [RequireAuth::class])
@@ -58,6 +66,8 @@ Route::post('/forum/{category}/{thread}/moderate/lock', [ModerationHandler::clas
     ->name('forum.moderation.lock');
 Route::post('/forum/{category}/{thread}/moderate/pin', [ModerationHandler::class, 'togglePin'], [RequireModerator::class])
     ->name('forum.moderation.pin');
+Route::post('/forum/{category}/{thread}/moderate/sticky', [ModerationHandler::class, 'togglePin'], [RequireModerator::class])
+    ->name('forum.moderation.sticky');
 Route::post('/forum/{category}/{thread}/moderate/delete', [ModerationHandler::class, 'deleteThread'], [RequireModerator::class])
     ->name('forum.moderation.delete_thread');
 Route::post('/forum/{category}/{thread}/posts/{post}/moderate/delete', [ModerationHandler::class, 'deletePost'], [RequireModerator::class])

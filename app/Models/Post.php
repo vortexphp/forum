@@ -35,10 +35,13 @@ final class Post extends Model
         $total = (int) ($count['n'] ?? 0);
 
         $items = static::connection()->select(
-            'SELECT p.*, u.name AS author_name, u.avatar AS author_avatar, u.role AS author_role'
+            'SELECT p.*, u.name AS author_name, u.avatar AS author_avatar, u.role AS author_role,'
+            . ' COALESCE(COUNT(pl.id), 0) AS likes_count'
             . ' FROM posts p'
             . ' INNER JOIN users u ON u.id = p.user_id'
+            . ' LEFT JOIN post_likes pl ON pl.post_id = p.id'
             . ' WHERE p.thread_id = ?'
+            . ' GROUP BY p.id'
             . ' ORDER BY p.created_at ASC, p.id ASC'
             . ' LIMIT ' . $perPage . ' OFFSET ' . $offset,
             [$threadId],

@@ -15,9 +15,15 @@ final class CategoryHandler
 {
     public function index(): Response
     {
+        $page = max(1, (int) Request::input('page', 1));
+        $payload = Category::paginateWithStats($page, 12);
+        $lastPage = max(1, (int) ceil($payload['total'] / 12));
+        $pagination = new Paginator($payload['items'], $payload['total'], $page, 12, $lastPage);
+
         return View::html('forum.categories', [
             'title' => \trans('forum.categories.title'),
-            'categories' => Category::listWithStats(),
+            'categories' => $payload['items'],
+            'pagination' => $pagination->withBasePath(route('forum.index')),
         ]);
     }
 

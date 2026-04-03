@@ -12,11 +12,18 @@ final class Category extends Model
     protected static array $fillable = ['name', 'slug', 'icon', 'color', 'description', 'sort_order', 'is_locked'];
 
     /**
-     * @return list<array<string, mixed>>
+     * @return array{items: list<array<string, mixed>>, total: int}
      */
-    public static function listWithStats(): array
+    public static function paginateWithStats(int $page, int $perPage = 12): array
     {
-        return static::connection()->select(
+        $page = max(1, $page);
+        $perPage = max(1, min(100, $perPage));
+        $offset = ($page - 1) * $perPage;
+
+        $count = static::connection()->selectOne('SELECT COUNT(*) AS n FROM categories');
+        $total = (int) ($count['n'] ?? 0);
+
+        $items = static::connection()->select(
             'SELECT c.*,'
             . ' COUNT(DISTINCT t.id) AS thread_total,'
             . ' COALESCE(SUM(t.reply_count), 0) AS reply_total,'
@@ -25,7 +32,10 @@ final class Category extends Model
             . ' LEFT JOIN threads t ON t.category_id = c.id'
             . ' GROUP BY c.id'
             . ' ORDER BY c.sort_order ASC, c.name ASC'
+            . ' LIMIT ' . $perPage . ' OFFSET ' . $offset
         );
+
+        return ['items' => $items, 'total' => $total];
     }
 
     public static function findBySlug(string $slug): ?self

@@ -26,6 +26,13 @@
         {% if errors.body is defined %}
             <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ errors.body }}</p>
         {% endif %}
+        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-500">{{ trans('forum.thread.body_help') }}</p>
+
+        <label for="thread-tags" class="mb-1 mt-4 block text-sm font-medium text-zinc-700 dark:text-zinc-300">{{ trans('forum.thread.field_tags') }}</label>
+        <input id="thread-tags" type="text" name="tags" value="{{ old.tags|default('') }}" placeholder="{{ trans('forum.thread.tags_placeholder') }}" class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none ring-emerald-500 focus:ring dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
+        {% if errors.tags is defined %}
+            <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ errors.tags }}</p>
+        {% endif %}
 
         <div class="mt-5 flex items-center gap-2">
             <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-500">{{ trans('forum.thread.submit') }}</button>

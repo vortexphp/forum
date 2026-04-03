@@ -42,5 +42,25 @@
             {% endfor %}
         </div>
     {% endif %}
+
+    {% if pagination is defined and pagination.hasPages() %}
+        <div class="mt-6 flex items-center justify-between text-sm">
+            {% if not pagination.onFirstPage() %}
+                <a href="{{ pagination.urlForPage(pagination.page - 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    {{ trans('forum.pagination.prev') }}
+                </a>
+            {% else %}
+                <span></span>
+            {% endif %}
+            <span class="text-zinc-500 dark:text-zinc-500">{{ trans('forum.pagination.summary', { page: pagination.page, last: pagination.last_page, total: pagination.total }) }}</span>
+            {% if not pagination.onLastPage() %}
+                <a href="{{ pagination.urlForPage(pagination.page + 1) }}" class="rounded-lg border border-zinc-300 px-3 py-1.5 text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
+                    {{ trans('forum.pagination.next') }}
+                </a>
+            {% else %}
+                <span></span>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -24,7 +24,7 @@
                     <form method="post" action="{{ route('forum.moderation.pin', { category: category.slug, thread: thread.slug }) }}">
                         <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
                         <button type="submit" class="rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400">
-                            {{ thread.is_pinned ? trans('forum.moderation.unpin') : trans('forum.moderation.pin') }}
+                            {{ thread.is_pinned ? trans('forum.moderation.unsticky') : trans('forum.moderation.sticky') }}
                         </button>
                     </form>
                     <form method="post" action="{{ route('forum.moderation.delete_thread', { category: category.slug, thread: thread.slug }) }}">
@@ -36,7 +36,21 @@
                 </div>
             {% endif %}
         </div>
-        <div class="prose prose-zinc mt-4 max-w-none whitespace-pre-wrap text-sm dark:prose-invert">{{ thread.body }}</div>
+        <div class="prose prose-zinc mt-4 max-w-none text-sm dark:prose-invert">{{ thread.body_html|raw }}</div>
+        {% if tags is not empty %}
+            <div class="mt-4 flex flex-wrap gap-2">
+                {% for tag in tags %}
+                    <span class="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">#{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if authUser is not null %}
+            <form method="post" action="{{ route('forum.flag.thread', { category: category.slug, thread: thread.slug }) }}" class="mt-4 flex items-center gap-2">
+                <input type="hidden" name="_csrf" value="{{ csrfToken|default('') }}">
+                <input type="hidden" name="reason" value="thread">
+                <button type="submit" class="rounded border border-zinc-300 px-2.5 py-1 text-xs font-semibold text-zinc-700 hover:border-amber-500 hover:text-amber-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-amber-500 dark:hover:text-amber-300">{{ trans('forum.flags.flag_thread') }}</button>
+            </form>
+        {% endif %}
     </header>
 
     {% if status %}
