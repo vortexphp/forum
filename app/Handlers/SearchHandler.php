@@ -23,17 +23,25 @@ final class SearchHandler
         $like = '%' . $q . '%';
         $items = [];
 
-        $threads = Thread::connection()->select(
-            'SELECT t.title, t.slug, c.slug AS category_slug, c.name AS category_name,'
-            . ' u.name AS author_name'
-            . ' FROM threads t'
-            . ' INNER JOIN categories c ON c.id = t.category_id'
-            . ' INNER JOIN users u ON u.id = t.user_id'
-            . ' WHERE LOWER(t.title) LIKE ? OR LOWER(t.body) LIKE ?'
-            . ' ORDER BY t.last_post_at DESC, t.id DESC'
-            . ' LIMIT 8',
-            [$like, $like],
-        );
+        $threads = Thread::query()
+            ->select([
+                'threads.title',
+                'threads.slug',
+                'c.slug AS category_slug',
+                'c.name AS category_name',
+                'u.name AS author_name',
+            ])
+            ->join('categories AS c', 'c.id', '=', 'threads.category_id')
+            ->join('users AS u', 'u.id', '=', 'threads.user_id')
+            ->whereGroup(static function ($query) use ($like): void {
+                $query
+                    ->whereRaw('LOWER(threads.title) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(threads.body) LIKE ?', [$like]);
+            })
+            ->orderBy('threads.last_post_at', 'DESC')
+            ->orderBy('threads.id', 'DESC')
+            ->limit(8)
+            ->getRaw();
         foreach ($threads as $row) {
             $items[] = [
                 'type' => 'thread',
@@ -47,13 +55,17 @@ final class SearchHandler
             ];
         }
 
-        $categories = Category::connection()->select(
-            'SELECT name, slug, description FROM categories'
-            . ' WHERE LOWER(name) LIKE ? OR LOWER(COALESCE(description, \'\')) LIKE ?'
-            . ' ORDER BY sort_order ASC, name ASC'
-            . ' LIMIT 5',
-            [$like, $like],
-        );
+        $categories = Category::query()
+            ->select(['name', 'slug', 'description'])
+            ->whereGroup(static function ($query) use ($like): void {
+                $query
+                    ->whereRaw('LOWER(name) LIKE ?', [$like])
+                    ->orWhereRaw('LOWER(COALESCE(description, \'\')) LIKE ?', [$like]);
+            })
+            ->orderBy('sort_order', 'ASC')
+            ->orderBy('name', 'ASC')
+            ->limit(5)
+            ->getRaw();
         foreach ($categories as $row) {
             $items[] = [
                 'type' => 'category',
@@ -64,13 +76,12 @@ final class SearchHandler
             ];
         }
 
-        $users = User::connection()->select(
-            'SELECT id, name, avatar FROM users'
-            . ' WHERE LOWER(name) LIKE ?'
-            . ' ORDER BY name ASC'
-            . ' LIMIT 6',
-            [$like],
-        );
+        $users = User::query()
+            ->select(['id', 'name', 'avatar'])
+            ->whereRaw('LOWER(name) LIKE ?', [$like])
+            ->orderBy('name', 'ASC')
+            ->limit(6)
+            ->getRaw();
         foreach ($users as $row) {
             $items[] = [
                 'type' => 'user',

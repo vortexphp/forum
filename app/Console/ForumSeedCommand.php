@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Console;
 
+use App\Models\Badge;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostLike;
 use App\Models\Thread;
 use App\Models\User;
+use App\Models\UserBadge;
 use App\Support\ForumBadgeService;
 use Vortex\Crypto\Password;
 use Vortex\Console\Command;
@@ -262,28 +264,28 @@ final class ForumSeedCommand extends Command
             return;
         }
 
-        $db = User::connection();
-        $badge = $db->selectOne('SELECT id FROM badges WHERE badge_key = ? LIMIT 1', [$badgeKey]);
+        $badge = Badge::query()->where('badge_key', $badgeKey)->first();
         if ($badge === null) {
             return;
         }
-        $badgeId = (int) ($badge['id'] ?? 0);
+        $badgeId = (int) ($badge->id ?? 0);
         if ($badgeId <= 0) {
             return;
         }
 
-        $exists = $db->selectOne(
-            'SELECT id FROM user_badges WHERE user_id = ? AND badge_id = ? LIMIT 1',
-            [(int) $user->id, $badgeId],
-        );
-        if ($exists !== null) {
+        if (UserBadge::query()
+            ->where('user_id', (int) $user->id)
+            ->where('badge_id', $badgeId)
+            ->exists()
+        ) {
             return;
         }
 
         $now = gmdate('Y-m-d H:i:s');
-        $db->execute(
-            'INSERT INTO user_badges (user_id, badge_id, awarded_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
-            [(int) $user->id, $badgeId, $now, $now, $now],
-        );
+        UserBadge::create([
+            'user_id' => (int) $user->id,
+            'badge_id' => $badgeId,
+            'awarded_at' => $now,
+        ]);
     }
 }
