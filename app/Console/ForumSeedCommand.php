@@ -32,9 +32,9 @@ final class ForumSeedCommand implements Command
         Application::boot($this->basePath);
 
         $defaults = [
-            ['name' => 'General', 'slug' => 'general', 'description' => 'General community discussion.', 'sort_order' => 1],
-            ['name' => 'Announcements', 'slug' => 'announcements', 'description' => 'Official project updates.', 'sort_order' => 2],
-            ['name' => 'Support', 'slug' => 'support', 'description' => 'Ask questions and get help.', 'sort_order' => 3],
+            ['name' => 'General', 'slug' => 'general', 'icon' => '💬', 'color' => '#10b981', 'description' => 'General community discussion.', 'sort_order' => 1],
+            ['name' => 'Announcements', 'slug' => 'announcements', 'icon' => '📢', 'color' => '#f59e0b', 'description' => 'Official project updates.', 'sort_order' => 2],
+            ['name' => 'Support', 'slug' => 'support', 'icon' => '🛟', 'color' => '#3b82f6', 'description' => 'Ask questions and get help.', 'sort_order' => 3],
         ];
 
         $created = 0;
@@ -46,6 +46,8 @@ final class ForumSeedCommand implements Command
             Category::create([
                 'name' => $row['name'],
                 'slug' => $row['slug'],
+                'icon' => $row['icon'],
+                'color' => $row['color'],
                 'description' => $row['description'],
                 'sort_order' => $row['sort_order'],
                 'is_locked' => 0,

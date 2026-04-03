@@ -9,7 +9,7 @@ use Vortex\Database\Model;
 final class Category extends Model
 {
     /** @var list<string> */
-    protected static array $fillable = ['name', 'slug', 'description', 'sort_order', 'is_locked'];
+    protected static array $fillable = ['name', 'slug', 'icon', 'color', 'description', 'sort_order', 'is_locked'];
 
     /**
      * @return list<array<string, mixed>>

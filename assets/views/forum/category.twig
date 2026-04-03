@@ -6,7 +6,9 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
                 <a href="{{ route('forum.index') }}" class="hover:text-emerald-600 dark:hover:text-emerald-400">{{ trans('forum.categories.title') }}</a>
             </p>
-            <h1 class="mt-1 text-2xl font-semibold text-zinc-900 dark:text-white">{{ category.name }}</h1>
+            <h1 class="mt-1 text-2xl font-semibold text-zinc-900 dark:text-white">
+                <span class="mr-2 inline-flex h-9 w-9 items-center justify-center rounded-lg text-base" style="background-color: color-mix(in oklab, {{ category.color|default('#10b981') }} 18%, white); color: {{ category.color|default('#10b981') }};" aria-hidden="true">{{ category.icon|default('💬') }}</span>{{ category.name }}
+            </h1>
             {% if category.description %}
                 <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{{ category.description }}</p>
             {% endif %}

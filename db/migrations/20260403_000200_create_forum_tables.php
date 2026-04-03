@@ -20,6 +20,8 @@ return new class implements Migration {
             $table->id();
             $table->string('name', 120);
             $table->string('slug', 150)->unique();
+            $table->string('icon', 32)->default('💬');
+            $table->string('color', 16)->default('#10b981');
             $table->text('description')->nullable();
             $table->integer('sort_order')->default(0)->index();
             $table->boolean('is_locked')->default(false)->index();
