@@ -2,28 +2,20 @@
 
 declare(strict_types=1);
 
-use Vortex\Database\Connection;
 use Vortex\Database\Schema\Migration;
 use Vortex\Database\Schema\Schema;
 
-return new class implements Migration {
-    public function id(): string
+return new class extends Migration {
+    public function up(): void
     {
-        return '20260403_000500_add_forum_badges';
-    }
-
-    public function up(Connection $db): void
-    {
-        $schema = Schema::connection($db);
-
-        $schema->create('badges', static function ($table): void {
+        Schema::create('badges', function ($table) {
             $table->id();
             $table->string('badge_key', 64)->unique();
             $table->integer('sort_order')->default(100)->index();
             $table->timestamps();
         });
 
-        $schema->create('user_badges', static function ($table): void {
+        Schema::create('user_badges', function ($table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->index();
             $table->foreignId('badge_id')->constrained('badges')->cascadeOnDelete()->index();
@@ -33,10 +25,9 @@ return new class implements Migration {
         });
     }
 
-    public function down(Connection $db): void
+    public function down(): void
     {
-        $schema = Schema::connection($db);
-        $schema->dropIfExists('user_badges');
-        $schema->dropIfExists('badges');
+        Schema::dropIfExists('user_badges');
+        Schema::dropIfExists('badges');
     }
 };

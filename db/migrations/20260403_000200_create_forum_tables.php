@@ -2,21 +2,13 @@
 
 declare(strict_types=1);
 
-use Vortex\Database\Connection;
 use Vortex\Database\Schema\Migration;
 use Vortex\Database\Schema\Schema;
 
-return new class implements Migration {
-    public function id(): string
+return new class extends Migration {
+    public function up(): void
     {
-        return '20260403_000200_create_forum_tables';
-    }
-
-    public function up(Connection $db): void
-    {
-        $schema = Schema::connection($db);
-
-        $schema->create('categories', static function ($table): void {
+        Schema::create('categories', function ($table) {
             $table->id();
             $table->string('name', 120);
             $table->string('slug', 150)->unique();
@@ -28,7 +20,7 @@ return new class implements Migration {
             $table->timestamps();
         });
 
-        $schema->create('threads', static function ($table): void {
+        Schema::create('threads', function ($table) {
             $table->id();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnDelete()->index();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->index();
@@ -44,7 +36,7 @@ return new class implements Migration {
             $table->index(['category_id', 'is_pinned', 'last_post_at'], 'threads_category_order_index');
         });
 
-        $schema->create('posts', static function ($table): void {
+        Schema::create('posts', function ($table) {
             $table->id();
             $table->foreignId('thread_id')->constrained('threads')->cascadeOnDelete()->index();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->index();
@@ -56,11 +48,10 @@ return new class implements Migration {
         });
     }
 
-    public function down(Connection $db): void
+    public function down(): void
     {
-        $schema = Schema::connection($db);
-        $schema->dropIfExists('posts');
-        $schema->dropIfExists('threads');
-        $schema->dropIfExists('categories');
+        Schema::dropIfExists('posts');
+        Schema::dropIfExists('threads');
+        Schema::dropIfExists('categories');
     }
 };

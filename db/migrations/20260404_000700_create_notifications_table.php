@@ -2,21 +2,13 @@
 
 declare(strict_types=1);
 
-use Vortex\Database\Connection;
 use Vortex\Database\Schema\Migration;
 use Vortex\Database\Schema\Schema;
 
-return new class implements Migration {
-    public function id(): string
+return new class extends Migration {
+    public function up(): void
     {
-        return '20260404_000700_create_notifications_table';
-    }
-
-    public function up(Connection $db): void
-    {
-        $schema = Schema::connection($db);
-
-        $schema->create('notifications', static function ($table): void {
+        Schema::create('notifications', function ($table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->index();
             $table->integer('actor_id')->nullable()->index();
@@ -30,8 +22,8 @@ return new class implements Migration {
         });
     }
 
-    public function down(Connection $db): void
+    public function down(): void
     {
-        Schema::connection($db)->dropIfExists('notifications');
+        Schema::dropIfExists('notifications');
     }
 };

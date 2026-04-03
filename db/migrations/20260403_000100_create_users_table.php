@@ -2,20 +2,13 @@
 
 declare(strict_types=1);
 
-use Vortex\Database\Connection;
 use Vortex\Database\Schema\Migration;
 use Vortex\Database\Schema\Schema;
 
-return new class implements Migration {
-    public function id(): string
+return new class extends Migration {
+    public function up(): void
     {
-        return '20260403_000100_create_users_table';
-    }
-
-    public function up(Connection $db): void
-    {
-        $schema = Schema::connection($db);
-        $schema->create('users', static function ($table): void {
+        Schema::create('users', function ($table) {
             $table->id();
             $table->string('name', 120);
             $table->string('email', 255)->unique();
@@ -26,8 +19,8 @@ return new class implements Migration {
         });
     }
 
-    public function down(Connection $db): void
+    public function down(): void
     {
-        Schema::connection($db)->dropIfExists('users');
+        Schema::dropIfExists('users');
     }
 };

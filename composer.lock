@@ -883,7 +883,7 @@
             "dist": {
                 "type": "path",
                 "url": "../framework",
-                "reference": "74bcd00b127660ebd21842ef9c0509abdbaf32f4"
+                "reference": "7ed8002f7906504b0ccad27a4563c9c0d8e169cd"
             },
             "require": {
                 "ext-mbstring": "*",

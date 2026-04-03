@@ -2,28 +2,20 @@
 
 declare(strict_types=1);
 
-use Vortex\Database\Connection;
 use Vortex\Database\Schema\Migration;
 use Vortex\Database\Schema\Schema;
 
-return new class implements Migration {
-    public function id(): string
+return new class extends Migration {
+    public function up(): void
     {
-        return '20260403_000300_add_forum_social_features';
-    }
-
-    public function up(Connection $db): void
-    {
-        $schema = Schema::connection($db);
-
-        $schema->create('tags', static function ($table): void {
+        Schema::create('tags', function ($table) {
             $table->id();
             $table->string('name', 40);
             $table->string('slug', 48)->unique();
             $table->timestamps();
         });
 
-        $schema->create('thread_tags', static function ($table): void {
+        Schema::create('thread_tags', function ($table) {
             $table->id();
             $table->foreignId('thread_id')->constrained('threads')->cascadeOnDelete()->index();
             $table->foreignId('tag_id')->constrained('tags')->cascadeOnDelete()->index();
@@ -31,7 +23,7 @@ return new class implements Migration {
             $table->unique(['thread_id', 'tag_id'], 'thread_tags_unique');
         });
 
-        $schema->create('post_likes', static function ($table): void {
+        Schema::create('post_likes', function ($table) {
             $table->id();
             $table->foreignId('post_id')->constrained('posts')->cascadeOnDelete()->index();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete()->index();
@@ -39,7 +31,7 @@ return new class implements Migration {
             $table->unique(['post_id', 'user_id'], 'post_likes_unique');
         });
 
-        $schema->create('content_flags', static function ($table): void {
+        Schema::create('content_flags', function ($table) {
             $table->id();
             $table->foreignId('reporter_id')->constrained('users')->cascadeOnDelete()->index();
             $table->string('target_type', 16)->index();
@@ -51,12 +43,11 @@ return new class implements Migration {
         });
     }
 
-    public function down(Connection $db): void
+    public function down(): void
     {
-        $schema = Schema::connection($db);
-        $schema->dropIfExists('content_flags');
-        $schema->dropIfExists('post_likes');
-        $schema->dropIfExists('thread_tags');
-        $schema->dropIfExists('tags');
+        Schema::dropIfExists('content_flags');
+        Schema::dropIfExists('post_likes');
+        Schema::dropIfExists('thread_tags');
+        Schema::dropIfExists('tags');
     }
 };
