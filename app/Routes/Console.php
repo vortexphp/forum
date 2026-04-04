@@ -3,13 +3,10 @@
 declare(strict_types=1);
 
 use App\Console\ForumSeedCommand;
-use Vortex\Console\ConsoleApplication;
+use Vortex\Vortex;
 
 /**
- * Register application console commands.
- *
- * @return callable(ConsoleApplication): void
+ * Application console routes. Loaded from `app/Routes/*Console.php` (see RouteDiscovery).
  */
-return static function (ConsoleApplication $app): void {
-    $app->register(new ForumSeedCommand($app->basePath()));
-};
+
+Vortex::command(ForumSeedCommand::class);
