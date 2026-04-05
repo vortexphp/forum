@@ -47,6 +47,11 @@ final class UserResource extends Resource
         return 'Users';
     }
 
+    public static function navigationIcon(): ?string
+    {
+        return 'users';
+    }
+
     public static function table(): Table
     {
         return Table::make(

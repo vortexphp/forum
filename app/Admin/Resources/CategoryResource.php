@@ -43,6 +43,11 @@ final class CategoryResource extends Resource
         return 'Categories';
     }
 
+    public static function navigationIcon(): ?string
+    {
+        return 'folder';
+    }
+
     public static function table(): Table
     {
         return Table::make(

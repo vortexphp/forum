@@ -46,6 +46,11 @@ final class PostResource extends Resource
         return 'Posts';
     }
 
+    public static function navigationIcon(): ?string
+    {
+        return 'document';
+    }
+
     public static function table(): Table
     {
         return Table::make(

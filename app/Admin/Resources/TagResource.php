@@ -38,6 +38,11 @@ final class TagResource extends Resource
         return 'Tags';
     }
 
+    public static function navigationIcon(): ?string
+    {
+        return 'tag';
+    }
+
     public static function table(): Table
     {
         return Table::make(

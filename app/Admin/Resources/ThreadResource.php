@@ -47,6 +47,11 @@ final class ThreadResource extends Resource
         return 'Threads';
     }
 
+    public static function navigationIcon(): ?string
+    {
+        return 'chat';
+    }
+
     public static function table(): Table
     {
         return Table::make(
