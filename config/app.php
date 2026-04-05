@@ -23,4 +23,7 @@ return [
         App\Middleware\RequireInstalled::class,
         App\Middleware\ShareAuthUser::class,
     ],
+    'packages' => [
+        \Vortex\Admin\AdminPackage::class,
+    ],
 ];

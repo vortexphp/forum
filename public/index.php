@@ -7,6 +7,8 @@ declare(strict_types=1);
  * HTTP routes are discovered from app/Routes/*.php.
  */
 
+use App\Models\User;
+use App\Observers\UserPasswordObserver;
 use Vortex\Application;
 use Vortex\Container;
 use Vortex\Http\Csrf;
@@ -23,6 +25,7 @@ try {
 
     /** @var \Vortex\Container $container */
     $container = Application::boot($projectRoot, static function (Container $container, string $basePath): void {
+        User::observe(UserPasswordObserver::class);
         View::share('csrfToken', Csrf::token());
     })->container();
 

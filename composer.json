@@ -3,10 +3,33 @@
     "description": "Community forum application built with VortexPHP framework",
     "type": "project",
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../framework",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "vortexphp/framework": "0.12.0"
+                }
+            }
+        },
+        {
+            "type": "path",
+            "url": "../admin",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "vortexphp/admin": "0.1.0"
+                }
+            }
+        }
+    ],
     "require": {
         "php": "^8.2",
         "league/commonmark": "^2.8",
-        "vortexphp/framework": "^0.10"
+        "vortexphp/admin": "^0.1",
+        "vortexphp/framework": "^0.12"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +57,10 @@
         "install:prod": "@composer install --no-dev --optimize-autoloader",
         "validate-project": "composer validate --no-check-publish",
         "test": "phpunit",
-        "build:css": "npm run build:css"
+        "build:css": "npm run build:css",
+        "publish-assets": "php vortex publish:assets",
+        "post-install-cmd": ["@publish-assets"],
+        "post-update-cmd": ["@publish-assets"]
     },
     "bin": [
         "vortex"

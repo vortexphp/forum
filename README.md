@@ -24,10 +24,11 @@ VortexPHP is optimized for very low-latency page delivery.
 - Private messages: inbox, conversation view, async feed endpoint, and async send endpoint.
 - Search helpers: suggestion endpoint for faster content discovery.
 - Localization: multi-language support (`en`, `bg`) via translation files.
+- Admin panel at `/admin` (`vortexphp/admin`): CRUD for categories, tags, posts, and users via `app/Admin/Resources` (see `config/admin.php`). User passwords are hashed on create/update (`App\Observers\UserPasswordObserver`).
 
 ## Tech Stack
 
-- Backend: PHP 8.2, VortexPHP framework
+- Backend: PHP 8.2, VortexPHP framework, vortexphp/admin
 - Frontend: Twig templates, Tailwind CSS 4
 - Content parsing: `league/commonmark`
 - Database: SQLite by default (configurable via `.env`)
@@ -65,6 +66,8 @@ composer run migrate
 npm run build
 ```
 
+After `composer install` / `update`, package assets (including admin CSS) are published into `public/` automatically. To run that step manually: `composer run publish-assets`.
+
 For local CSS watch mode:
 
 ```bash
@@ -79,6 +82,7 @@ composer run serve
 
 ## Available Composer Scripts
 
+- `composer run publish-assets` - copy vortex package assets (e.g. `public/css/admin.css`)
 - `composer run serve` - start local development server
 - `composer run migrate` - apply database migrations
 - `composer run migrate:down` - rollback last migration batch
