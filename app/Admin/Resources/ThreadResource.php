@@ -19,8 +19,8 @@ use Vortex\Admin\Tables\Columns\DatetimeColumn;
 use Vortex\Admin\Tables\Columns\NumericColumn;
 use Vortex\Admin\Tables\Columns\TextColumn;
 use Vortex\Admin\Tables\Columns\ToggleColumn;
-use Vortex\Admin\Tables\DeleteAction;
-use Vortex\Admin\Tables\EditAction;
+use Vortex\Admin\Tables\DeleteRowAction;
+use Vortex\Admin\Tables\EditRowAction;
 use Vortex\Admin\Tables\SelectFilter;
 use Vortex\Admin\Tables\Table;
 use Vortex\Admin\Tables\TextFilter;
@@ -85,8 +85,8 @@ final class ThreadResource extends Resource
         )->withGlobalSearch(['title', 'slug', 'body'])
             ->withEmptyMessage('No threads yet.')
             ->withActions(
-                EditAction::make('Edit'),
-                DeleteAction::make('Delete'),
+                EditRowAction::make('Edit'),
+                DeleteRowAction::make('Delete'),
             );
     }
 

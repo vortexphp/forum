@@ -11,8 +11,8 @@ use Vortex\Admin\Resource;
 use Vortex\Admin\Tables\Columns\DatetimeColumn;
 use Vortex\Admin\Tables\Columns\NumericColumn;
 use Vortex\Admin\Tables\Columns\TextColumn;
-use Vortex\Admin\Tables\DeleteAction;
-use Vortex\Admin\Tables\EditAction;
+use Vortex\Admin\Tables\DeleteRowAction;
+use Vortex\Admin\Tables\EditRowAction;
 use Vortex\Admin\Tables\Table;
 use Vortex\Admin\Tables\TextFilter;
 
@@ -55,8 +55,8 @@ final class TagResource extends Resource
         )->withGlobalSearch(['name', 'slug'])
             ->withEmptyMessage('No tags yet.')
             ->withActions(
-                EditAction::make('Edit'),
-                DeleteAction::make('Delete'),
+                EditRowAction::make('Edit'),
+                DeleteRowAction::make('Delete'),
             );
     }
 
