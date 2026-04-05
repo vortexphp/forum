@@ -5,11 +5,23 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Vortex\Database\Model;
+use Vortex\Database\Relation;
 
 final class Post extends Model
 {
     /** @var list<string> */
     protected static array $fillable = ['thread_id', 'user_id', 'body', 'is_edited', 'edited_at'];
+
+    /**
+     * @return array<string, list<mixed>>
+     */
+    protected static function eagerRelations(): array
+    {
+        return [
+            'thread' => Relation::belongsTo(Thread::class, 'thread_id'),
+            'author' => Relation::belongsTo(User::class, 'user_id'),
+        ];
+    }
 
     public function thread(): ?Thread
     {

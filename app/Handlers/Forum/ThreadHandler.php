@@ -154,14 +154,6 @@ final class ThreadHandler
             'reply_count' => 0,
             'last_post_at' => $now,
         ]);
-
-        Post::create([
-            'thread_id' => (int) $thread->id,
-            'user_id' => (int) $user->id,
-            'body' => $data['body'],
-            'is_edited' => 0,
-            'edited_at' => null,
-        ]);
         Thread::syncTags((int) $thread->id, $this->parseTags($data['tags']));
         ForumBadgeService::recalculateForUser((int) $user->id);
 

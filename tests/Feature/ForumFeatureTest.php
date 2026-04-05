@@ -8,10 +8,15 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Thread;
 use App\Models\User;
+use App\Observers\ThreadOpeningPostObserver;
+use App\Observers\UserPasswordObserver;
 use PHPUnit\Framework\TestCase;
 use Vortex\Application;
+use Vortex\Container;
 use Vortex\Crypto\Password;
 use Vortex\Database\Connection;
+use Vortex\Database\DatabaseManager;
+use Vortex\Database\Model;
 use Vortex\Database\Schema\SchemaMigrator;
 use Vortex\Http\Csrf;
 use Vortex\Http\Kernel;
@@ -33,20 +38,29 @@ final class ForumFeatureTest extends TestCase
         parent::setUp();
 
         $this->basePath = dirname(__DIR__, 2);
-        $this->dbPath = $this->basePath . '/storage/testing.sqlite';
+        $this->dbPath = $this->basePath . '/storage/testing-' . bin2hex(random_bytes(6)) . '.sqlite';
 
-        if (is_file($this->dbPath)) {
-            unlink($this->dbPath);
-        }
-
-        putenv('DB_DRIVER=sqlite');
-        putenv('DB_DATABASE=' . $this->dbPath);
         putenv('APP_ENV=testing');
         putenv('APP_DEBUG=1');
 
-        $app = Application::boot($this->basePath);
+        $dbPath = $this->dbPath;
+        $app = Application::boot($this->basePath, static function (Container $container) use ($dbPath): void {
+            $pdo = DatabaseManager::makePdo([
+                'driver' => 'sqlite',
+                'database' => $dbPath,
+                'host' => '127.0.0.1',
+                'port' => '3306',
+                'username' => '',
+                'password' => '',
+            ]);
+            $container->instance(Connection::class, new Connection($pdo));
+        });
         $container = $app->container();
         $this->kernel = new Kernel($container);
+
+        Model::forgetRegisteredObservers();
+        User::observe(UserPasswordObserver::class);
+        Thread::observe(ThreadOpeningPostObserver::class);
 
         $migrator = new SchemaMigrator($this->basePath, $container->make(Connection::class));
         $migrator->up();
@@ -180,7 +194,7 @@ final class ForumFeatureTest extends TestCase
     private function createThreadBy(User $author, string $title, string $body): Thread
     {
         $slug = strtolower(str_replace(' ', '-', $title));
-        $thread = Thread::create([
+        return Thread::create([
             'category_id' => (int) $this->category->id,
             'user_id' => (int) $author->id,
             'title' => $title,
@@ -191,15 +205,5 @@ final class ForumFeatureTest extends TestCase
             'reply_count' => 0,
             'last_post_at' => gmdate('Y-m-d H:i:s'),
         ]);
-
-        Post::create([
-            'thread_id' => (int) $thread->id,
-            'user_id' => (int) $author->id,
-            'body' => $body,
-            'is_edited' => 0,
-            'edited_at' => null,
-        ]);
-
-        return $thread;
     }
 }

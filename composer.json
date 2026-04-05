@@ -64,5 +64,8 @@
     },
     "bin": [
         "vortex"
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^11"
+    }
 }

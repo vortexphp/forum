@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Vortex\Database\Model;
+use Vortex\Database\Relation;
 
 final class Thread extends Model
 {
@@ -20,6 +21,17 @@ final class Thread extends Model
         'reply_count',
         'last_post_at',
     ];
+
+    /**
+     * @return array<string, list<mixed>>
+     */
+    protected static function eagerRelations(): array
+    {
+        return [
+            'category' => Relation::belongsTo(Category::class, 'category_id'),
+            'author' => Relation::belongsTo(User::class, 'user_id'),
+        ];
+    }
 
     public function category(): ?Category
     {

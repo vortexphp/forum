@@ -174,7 +174,6 @@ final class ForumSeedService
             }
 
             $now = gmdate('Y-m-d H:i:s');
-            $replyCount = count($row['replies']);
             $thread = Thread::create([
                 'category_id' => (int) $category->id,
                 'user_id' => (int) $author->id,
@@ -183,20 +182,16 @@ final class ForumSeedService
                 'body' => $row['body'],
                 'is_locked' => 0,
                 'is_pinned' => 0,
-                'reply_count' => $replyCount,
+                'reply_count' => 0,
                 'last_post_at' => $now,
             ]);
             ++$createdThreads;
 
-            $firstPost = Post::create([
-                'thread_id' => (int) $thread->id,
-                'user_id' => (int) $author->id,
-                'body' => $row['body'],
-                'is_edited' => 0,
-                'edited_at' => null,
-            ]);
-            $allPostIds[] = (int) $firstPost->id;
-            ++$createdPosts;
+            $firstPost = Post::query()->where('thread_id', (int) $thread->id)->orderBy('id')->first();
+            if ($firstPost !== null) {
+                $allPostIds[] = (int) $firstPost->id;
+                ++$createdPosts;
+            }
 
             foreach ($row['replies'] as $reply) {
                 $replyAuthor = $usersByEmail[strtolower($reply['author_email'])] ?? null;
@@ -214,6 +209,7 @@ final class ForumSeedService
                 $allPostIds[] = (int) $replyPost->id;
                 ++$createdPosts;
             }
+            Thread::touchAfterReply((int) $thread->id);
         }
 
         $likesAdded = 0;
