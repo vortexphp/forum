@@ -9,10 +9,15 @@
 
     var lastFocus = null;
 
+    function isModalVisuallyClosed(root) {
+        if (!root) return true;
+        return root.classList.contains('hidden') || root.hidden;
+    }
+
     function onDocKey(e) {
         if (e.key !== 'Escape') return;
         var root = document.getElementById('adm_modal');
-        if (!root || root.hidden) return;
+        if (isModalVisuallyClosed(root)) return;
         e.preventDefault();
         closeModal();
     }
@@ -28,7 +33,8 @@
 
     function closeModal() {
         var root = document.getElementById('adm_modal');
-        if (!root || root.hidden) return;
+        if (!root || isModalVisuallyClosed(root)) return;
+        root.classList.add('hidden');
         root.hidden = true;
         var body = root.querySelector('[data-adm-modal-body]');
         if (body) body.innerHTML = '';
@@ -75,6 +81,7 @@
         initConfirmIn(body);
 
         lastFocus = document.activeElement;
+        root.classList.remove('hidden');
         root.hidden = false;
         document.addEventListener('keydown', onDocKey, true);
 
